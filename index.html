@@ -1,0 +1,3829 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>YUJ Studio V2.4 – Hybrid Asset Intelligence</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&family=Montserrat:ital,wght@0,700;0,900;1,800&family=Outfit:wght@500;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Client-side Color Science Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+
+  <style>
+    :root {
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #0f172a;
+      background: radial-gradient(circle at 50% 0%, #fefce8 0%, #f1f5f9 58%, #e2e8f0 100%);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    #previewCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 76vh;
+      width: auto;
+      height: auto;
+    }
+
+    .preset-btn.active {
+      background: #fffbeb;
+      color: #78350f;
+      border: 2px solid #d97706;
+    }
+
+    .lib-thumb {
+      transition: all 0.2s ease;
+    }
+
+    .lib-thumb.active-thumb {
+      outline: 3px solid #f59e0b;
+      transform: scale(0.96);
+    }
+
+    .lock-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.65rem;
+      background: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .engine-warning {
+      color: #9a3412;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+
+<div class="flex flex-col lg:flex-row min-h-screen">
+
+  <!-- CONTROL PANEL -->
+  <aside
+    class="w-full lg:w-[490px] bg-white/95 border-r border-slate-200 p-6 flex flex-col gap-5 overflow-y-auto lg:max-h-screen custom-scrollbar shadow-xl backdrop-blur-xl"
+  >
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 flex items-center justify-center font-extrabold text-white shadow-md">
+          Y
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-tight font-['Syne']">YUJ Studio</h1>
+          <p class="text-[11px] text-slate-500 font-semibold">Generative Asset Pipeline</p>
+        </div>
+      </div>
+      <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+        V2.4 HYBRID
+      </span>
+    </div>
+
+    <!-- PRIMARY GENERATION CONTROLS -->
+    <div class="flex flex-col gap-2">
+      <button
+        id="randomizeBtn"
+        type="button"
+        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white font-bold text-sm shadow-lg hover:brightness-105 active:scale-[0.99] transition flex items-center justify-center gap-2"
+      >
+        <span>✨</span> Generate Full Creative
+      </button>
+
+      <button
+        id="shuffleTextBtn"
+        type="button"
+        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-md active:scale-[0.99] transition flex items-center justify-center gap-2 border border-slate-700"
+      >
+        <span>🔀</span> Shuffle Text Positions Only
+      </button>
+
+      <button
+        id="optimizeCompositionBtn"
+        type="button"
+        class="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-md active:scale-[0.99] transition flex items-center justify-center gap-2 border border-violet-500"
+      >
+        <span>◎</span> Find Best Composition
+      </button>
+    </div>
+
+    <!-- STATUS -->
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+        <span id="activeStyleMeta" class="truncate font-medium">Initializing...</span>
+      </div>
+      <span id="loadBadge" class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">
+        READY
+      </span>
+    </div>
+
+    <!-- CREATIVE ARCHETYPE -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Creative Archetype</h2>
+          <p class="text-[10px] text-slate-500">Structure and hierarchy, not a rigid template</p>
+        </div>
+        <span class="text-[10px] font-semibold text-violet-700">Planner Layer</span>
+      </div>
+      <select id="archetypeSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2 outline-none focus:border-violet-500">
+        <option value="auto">Auto / Balanced Editorial</option>
+        <option value="hero_statement">Hero Statement</option>
+        <option value="editorial_story">Editorial Story</option>
+        <option value="educational_explainer">Educational Explainer</option>
+        <option value="quote_thought">Quote / Thought</option>
+        <option value="product_hero">Product Hero</option>
+        <option value="feature_stack">Feature Stack</option>
+        <option value="announcement">Announcement</option>
+        <option value="emotional_story">Emotional Human Story</option>
+        <option value="campaign_provocation">Campaign / Provocation</option>
+      </select>
+      <div id="archetypeDescription" class="text-[10px] leading-relaxed text-slate-600 bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+        Balanced editorial hierarchy with flexible layouts and optional feature points.
+      </div>
+    </div>
+
+    <!-- HYBRID ASSET INTELLIGENCE -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Hybrid Asset Intelligence</h2>
+          <p class="text-[10px] text-slate-500">Reuse first. Generate only when existing or procedural assets cannot satisfy the composition.</p>
+        </div>
+        <span class="text-[10px] font-semibold text-cyan-700">V2.4</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label for="hybridModeSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Resolver Mode</label>
+          <select id="hybridModeSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+            <option value="auto">Hybrid Auto (Recommended)</option>
+            <option value="reuse_first">Reuse First</option>
+            <option value="procedural_first">Procedural First</option>
+            <option value="generative_first">Diffusion First (Testing)</option>
+          </select>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1">
+            <label for="hybridReuseThreshold" class="text-[11px] text-slate-600 font-semibold">Reuse Threshold</label>
+            <span id="hybridReuseThresholdVal" class="text-[10px] font-mono text-slate-500">80</span>
+          </div>
+          <input id="hybridReuseThreshold" type="range" min="60" max="95" value="80" class="w-full accent-cyan-600" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[10px] text-slate-600">
+        <label class="flex items-center gap-2"><input id="hybridAllowCurrent" type="checkbox" checked class="accent-cyan-600" /> Current / uploaded</label>
+        <label class="flex items-center gap-2"><input id="hybridAllowLibrary" type="checkbox" checked class="accent-cyan-600" /> Curated library</label>
+        <label class="flex items-center gap-2"><input id="hybridAllowProcedural" type="checkbox" checked class="accent-cyan-600" /> Procedural</label>
+        <label class="flex items-center gap-2"><input id="hybridAllowGenerative" type="checkbox" checked class="accent-cyan-600" /> Diffusion fallback</label>
+        <label class="flex items-center gap-2 col-span-2"><input id="hybridEnableCache" type="checkbox" checked class="accent-cyan-600" /> Reuse accepted generated assets during this browser session</label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button id="resolveHybridAssetBtn" type="button" class="py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-[10px] font-bold shadow-sm">Resolve Best Asset</button>
+        <button id="clearHybridCacheBtn" type="button" class="py-2.5 rounded-lg bg-white border border-slate-300 hover:border-cyan-400 text-slate-700 text-[10px] font-bold">Clear Session Cache</button>
+      </div>
+
+      <div id="hybridResolverStatus" class="text-[10px] px-2.5 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 font-semibold">Hybrid resolver: READY</div>
+
+      <details class="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+        <summary class="cursor-pointer text-[10px] font-bold text-slate-600">Resolver path & candidate scores</summary>
+        <div id="hybridResolverBreakdown" class="mt-2 text-[9px] leading-relaxed text-slate-500">No hybrid resolution run yet.</div>
+      </details>
+    </div>
+
+    <!-- GENERATIVE VISUAL PIPELINE -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Generative Visual Pipeline</h2>
+          <p class="text-[10px] text-slate-500">Generates background/hero assets only. Final text, logo and product layers stay deterministic.</p>
+        </div>
+        <span class="text-[10px] font-semibold text-fuchsia-700">ZeroGPU Free</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label for="genProviderSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Provider</label>
+         <select id="genProviderSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+         <option value="hf_inference" selected>Free Cloud Diffusion (FLUX / Pollinations)</option>
+         <option value="mock">Mock Generator (Pipeline Test)</option>
+         <option value="hf_zerogpu">Hugging Face ZeroGPU (Free Space)</option>
+         <option value="colab_diffusers">Google Colab • Diffusers Tunnel</option>
+         <option value="backend">Generic Backend Endpoint</option>
+         </select>        
+	</div>
+        <div>
+          <label for="genMoodSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Mood</label>
+          <select id="genMoodSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+            <option value="auto">Auto from Archetype</option>
+            <option value="calm">Calm</option>
+            <option value="hopeful">Hopeful</option>
+            <option value="serious">Serious</option>
+            <option value="urgent">Urgent</option>
+            <option value="premium">Premium</option>
+            <option value="energetic">Energetic</option>
+            <option value="provocative">Provocative</option>
+            <option value="warm">Warm</option>
+            <option value="spiritual">Spiritual</option>
+            <option value="technical">Technical</option>
+            <option value="playful">Playful</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="genStyleSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Visual Style</label>
+        <select id="genStyleSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+          <option value="auto">Auto from Archetype</option>
+          <option value="cinematic_editorial">Cinematic Editorial Photography</option>
+          <option value="natural_photography">Natural Documentary Photography</option>
+          <option value="minimal_editorial">Minimal Editorial Background</option>
+          <option value="premium_commercial">Premium Commercial Scene</option>
+          <option value="soft_illustration">Soft Editorial Illustration</option>
+          <option value="graphic_campaign">Bold Graphic Campaign</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="genConceptInput" class="text-[11px] text-slate-600 font-semibold mb-1 block">Visual Concept</label>
+        <textarea id="genConceptInput" rows="2" class="w-full bg-white border border-slate-300 text-xs rounded-lg p-2.5" placeholder="Example: a thoughtful Indian student sitting beneath a tree after receiving exam results"></textarea>
+      </div>
+
+      <div id="genEndpointWrap">
+        <label id="genEndpointLabel" for="genEndpointInput" class="text-[11px] text-slate-600 font-semibold mb-1 block">Hugging Face Model ID</label>
+        <input id="genEndpointInput" type="text" value="black-forest-labs/FLUX.1-schnell" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2 font-mono" />
+        
+        <div id="genTokenWrap">
+          <label for="genEndpointToken" class="text-[11px] text-slate-600 font-semibold mt-2 mb-1 block">Endpoint Token / HF User Key</label>
+          <input id="genEndpointToken" type="password" autocomplete="off" value="" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2 font-mono" />
+        </div>
+        <p id="genHelpText" class="text-[9px] text-slate-400 mt-1">Using Hugging Face Serverless Inference API with SDXL-Turbo.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="flex justify-between mb-1">
+            <label for="genValidationThreshold" class="text-[11px] text-slate-600 font-semibold">Min Asset Score</label>
+            <span id="genValidationThresholdVal" class="text-[10px] font-mono text-slate-500">75</span>
+          </div>
+          <input id="genValidationThreshold" type="range" min="20" max="95" value="75" class="w-full accent-fuchsia-600" />
+        </div>
+        <div>
+          <label for="genMaxAttempts" class="text-[11px] text-slate-600 font-semibold mb-1 block">Max Attempts</label>
+          <select id="genMaxAttempts" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button id="buildGenPromptBtn" type="button" class="py-2 rounded-lg bg-white border border-slate-300 hover:border-fuchsia-400 text-slate-700 text-[10px] font-bold">Build Prompt</button>
+        <button id="generateAssetBtn" type="button" class="py-2 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-[10px] font-bold shadow-sm">Generate Asset</button>
+        <button id="validateCurrentAssetBtn" type="button" class="py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold">Validate Current</button>
+      </div>
+
+      <div id="genValidationStatus" class="text-[10px] px-2.5 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 font-semibold">Generation pipeline: READY</div>
+
+      <details class="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+        <summary class="cursor-pointer text-[10px] font-bold text-slate-600">Generated prompt & validation</summary>
+        <div class="mt-2 flex flex-col gap-2">
+          <div>
+            <div class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">Positive prompt</div>
+            <pre id="genPromptPreview" class="whitespace-pre-wrap text-[9px] leading-relaxed bg-slate-50 border border-slate-100 rounded p-2 text-slate-600 max-h-36 overflow-auto custom-scrollbar">Build a prompt to preview it here.</pre>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">Negative prompt / hard exclusions</div>
+            <pre id="genNegativePromptPreview" class="whitespace-pre-wrap text-[9px] leading-relaxed bg-slate-50 border border-slate-100 rounded p-2 text-slate-600 max-h-28 overflow-auto custom-scrollbar">No embedded typography, logos or watermarks.</pre>
+          </div>
+          <div id="genValidationBreakdown" class="grid grid-cols-2 gap-x-3 gap-y-1 text-[9px] text-slate-500"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- CURATED LIFE EDUCATION IMAGE LIBRARY -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Life Education Library</h2>
+          <p class="text-[10px] text-slate-500">Curated high-res imagery (CORS-enabled)</p>
+        </div>
+        <button id="quickCopyBtn" class="text-[10px] font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded border border-amber-200 transition" title="Fill Life Education copy">
+          ✨ Apply Ed-Copy
+        </button>
+      </div>
+
+      <!-- Categories Tabs -->
+      <div class="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px] font-semibold">
+        <button class="lib-cat-btn px-2.5 py-1 rounded-md bg-amber-500 text-white" data-cat="all">All</button>
+        <button class="lib-cat-btn px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300" data-cat="mindfulness">Mindfulness</button>
+        <button class="lib-cat-btn px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300" data-cat="mentorship">Mentorship</button>
+        <button class="lib-cat-btn px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300" data-cat="experiential">Experiential</button>
+        <button class="lib-cat-btn px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300" data-cat="community">Community</button>
+      </div>
+
+      <!-- Thumbnail Grid -->
+      <div id="imageLibraryGrid" class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+        <!-- Rendered via JavaScript -->
+      </div>
+
+      <div class="text-[10px] text-slate-500 flex justify-between items-center pt-1 border-t border-slate-200">
+        <span id="activeImageSourceLabel">Source: Procedural Gradient</span>
+        <button id="clearLibrarySelectBtn" class="text-rose-600 hover:underline font-semibold hidden">Deselect Image</button>
+      </div>
+    </div>
+
+    <!-- BACKGROUND IMAGERY (FILE UPLOAD & POSITIONING) -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Composition & Placement</h2>
+        <span class="text-[10px] font-semibold text-emerald-700">Layout Controls</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="layoutSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Text Position</label>
+          <select id="layoutSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+            <option value="auto">Auto / Shuffle</option>
+            <option value="left">Editorial Left</option>
+            <option value="right">Editorial Right</option>
+            <option value="center">Statement Center</option>
+            <option value="lower">Lower Editorial</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="imageFocusSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Image Placement</label>
+          <select id="imageFocusSelect" class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2">
+            <option value="auto">Auto Analyze</option>
+            <option value="manual">Manual Focus</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="manualFocusControls" class="grid grid-cols-3 gap-3 opacity-50">
+        <div>
+          <div class="flex justify-between mb-1">
+            <label for="focusX" class="text-[11px] text-slate-600 font-semibold">Focus X</label>
+            <span id="focusXVal" class="text-[10px] font-mono text-slate-500">50%</span>
+          </div>
+          <input id="focusX" type="range" min="0" max="100" value="50" class="w-full accent-amber-600" />
+        </div>
+        <div>
+          <div class="flex justify-between mb-1">
+            <label for="focusY" class="text-[11px] text-slate-600 font-semibold">Focus Y</label>
+            <span id="focusYVal" class="text-[10px] font-mono text-slate-500">50%</span>
+          </div>
+          <input id="focusY" type="range" min="0" max="100" value="50" class="w-full accent-amber-600" />
+        </div>
+        <div>
+          <div class="flex justify-between mb-1">
+            <label for="imageZoom" class="text-[11px] text-slate-600 font-semibold">Zoom</label>
+            <span id="imageZoomVal" class="text-[10px] font-mono text-slate-500">100%</span>
+          </div>
+          <input id="imageZoom" type="range" min="100" max="180" value="100" class="w-full accent-amber-600" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="imageUpload" class="text-[11px] text-slate-600 font-semibold mb-1 block">Custom Image File</label>
+          <div class="flex items-center gap-2">
+            <label class="flex-1 cursor-pointer bg-white border border-dashed border-slate-300 hover:border-amber-500 rounded-lg p-2 text-center transition">
+              <span id="uploadLabel" class="text-xs text-slate-500 font-medium">Click to pick file...</span>
+              <input id="imageUpload" type="file" accept="image/*" class="hidden" />
+            </label>
+            <button id="clearImageBtn" type="button" class="hidden px-2.5 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition" title="Reset to procedural">Clear</button>
+          </div>
+        </div>
+
+        <div>
+          <label for="logoUpload" class="text-[11px] text-slate-600 font-semibold mb-1 block">Brand Logo (PNG/SVG)</label>
+          <div class="flex items-center gap-2">
+            <label class="flex-1 cursor-pointer bg-white border border-dashed border-slate-300 hover:border-amber-500 rounded-lg p-2 text-center transition">
+              <span id="logoUploadLabel" class="text-xs text-slate-500 font-medium">Optional logo...</span>
+              <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden" />
+            </label>
+            <button id="clearLogoBtn" type="button" class="hidden px-2.5 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2">
+        <label class="lock-chip"><input id="lockPalette" type="checkbox" /> Palette</label>
+        <label class="lock-chip"><input id="lockFonts" type="checkbox" /> Fonts</label>
+        <label class="lock-chip"><input id="lockLayout" type="checkbox" /> Layout</label>
+        <label class="lock-chip"><input id="lockSeed" type="checkbox" /> Seed</label>
+      </div>
+
+      <div class="flex gap-2">
+        <input id="seedInput" type="number" min="0" max="4294967295" placeholder="Creative seed" class="flex-1 bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2 font-mono" />
+        <button id="applySeedBtn" type="button" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-[10px] font-bold">Apply Seed</button>
+      </div>
+
+      <div id="engineHealth" class="text-[10px] px-2.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
+        Layout health: READY
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+          <div class="text-[9px] uppercase tracking-wider font-bold text-slate-500">Composition Score</div>
+          <div class="flex items-end gap-1 mt-0.5">
+            <span id="compositionScore" class="text-xl font-black text-slate-900">--</span>
+            <span class="text-[9px] text-slate-400 pb-1">/100</span>
+          </div>
+          <div id="compositionGrade" class="text-[9px] font-bold text-slate-500">Not evaluated</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+          <div class="text-[9px] uppercase tracking-wider font-bold text-slate-500">Asset Resolver</div>
+          <div id="assetResolverStatus" class="text-[10px] font-semibold text-slate-700 mt-1 leading-relaxed">Background: Procedural<br>Logo: Generated seal</div>
+        </div>
+      </div>
+
+      <details class="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+        <summary class="cursor-pointer text-[10px] font-bold text-slate-600">Score breakdown</summary>
+        <div id="scoreBreakdown" class="grid grid-cols-2 gap-x-3 gap-y-1 mt-2 text-[9px] text-slate-500"></div>
+      </details>
+
+    </div>
+
+    <!-- COLOR HARMONY GENERATOR (CHROMA.JS) -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3.5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Chroma Color Harmonies</h2>
+        <span class="text-[10px] font-semibold text-indigo-700">Dynamic</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button
+          id="genChromaPaletteBtn"
+          type="button"
+          class="py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95"
+        >
+          <span>🌈</span> Random Harmony
+        </button>
+
+        <button
+          id="extractImgPaletteBtn"
+          type="button"
+          class="py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95"
+        >
+          <span>🎨</span> Match Image
+        </button>
+      </div>
+
+      <!-- ACTIVE SWATCHES DISPLAY -->
+      <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex flex-col gap-1.5">
+        <div class="text-[10px] font-semibold text-slate-500 flex justify-between">
+          <span>Active Swatch Spectrum</span>
+          <span id="paletteSourceLabel" class="text-amber-700 font-bold">Preset</span>
+        </div>
+        <div id="paletteSwatches" class="flex h-6 rounded-md overflow-hidden ring-1 ring-slate-200">
+          <div class="flex-1 bg-[#251507]"></div>
+          <div class="flex-1 bg-[#fef08a]"></div>
+          <div class="flex-1 bg-[#fbbf24]"></div>
+          <div class="flex-1 bg-[#d97706]"></div>
+          <div class="flex-1 bg-[#f59e0b]"></div>
+        </div>
+      </div>
+
+      <div>
+        <label for="harmonyTypeSelect" class="text-[11px] text-slate-600 font-semibold mb-1 block">Color Theory Model</label>
+        <select
+          id="harmonyTypeSelect"
+          class="w-full bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2 outline-none focus:border-amber-500"
+        >
+          <option value="analogous">Analogous Harmony (Smooth & Balanced)</option>
+          <option value="triadic">Triadic Harmony (Vibrant 3-Way)</option>
+          <option value="complementary">Split-Complementary (High Contrast)</option>
+          <option value="bezier">L*a*b* Multi-Hue Bezier Scale</option>
+          <option value="preset">Static Studio Presets</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="flex justify-between mb-1">
+            <label class="text-[11px] text-slate-600 font-semibold">Photo Dissolve</label>
+            <span id="fadeStrengthVal" class="text-[10px] font-mono text-slate-500">68%</span>
+          </div>
+          <input id="fadeStrength" type="range" min="30" max="92" value="68" class="w-full accent-amber-600" />
+        </div>
+        <div>
+          <div class="flex justify-between mb-1">
+            <label class="text-[11px] text-slate-600 font-semibold">Sunlight Flare</label>
+            <span id="lightBleedVal" class="text-[10px] font-mono text-slate-500">55%</span>
+          </div>
+          <input id="lightBleed" type="range" min="15" max="85" value="55" class="w-full accent-amber-600" />
+        </div>
+      </div>
+    </div>
+
+    <!-- COPY -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Editorial Copy</h2>
+        <span class="text-[10px] font-semibold text-amber-700">[word] = Accent</span>
+      </div>
+
+      <div>
+        <label class="text-[11px] font-semibold text-slate-600">Headline</label>
+        <textarea id="headlineInput" rows="2" class="w-full mt-1 bg-white border border-slate-300 text-xs rounded-lg p-2.5">[Education] For A Limitless Life</textarea>
+      </div>
+
+      <div>
+        <label class="text-[11px] font-semibold text-slate-600">Supporting Value Proposition</label>
+        <textarea id="subheadingInput" rows="3" class="w-full mt-1 bg-white border border-slate-300 text-xs rounded-lg p-2.5">Empowering foundational cognitive and emotional development through experiential, value-based immersion.</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2">
+        <input id="brandName" value="YUJ FOUNDATION" placeholder="Brand" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+        <input id="eyebrowInput" value="LIFE EDUCATION INITIATIVE" placeholder="Campaign" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+        <input id="domainInput" value="YUJFOUNDATION.IN" placeholder="Website" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+        <input id="taglineInput" value="Live Different" placeholder="Seal tagline" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col gap-2">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Takeaway Points</h2>
+      <input id="feat1" value="Holistic Foundation: Emotional balance and mental clarity" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+      <input id="feat2" value="Experiential Learning: Beyond rigid classroom walls" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+      <input id="feat3" value="Conscious Action: Value-driven personal evolution" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-2" />
+    </div>
+
+    <!-- DIMENSIONS -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Canvas Aspect Ratio</h2>
+      <div id="aspectPresets" class="grid grid-cols-3 gap-2">
+        <button class="preset-btn py-2 text-xs font-bold rounded-lg bg-white border border-slate-300" data-w="1080" data-h="1080">1:1</button>
+        <button class="preset-btn active py-2 text-xs font-bold rounded-lg" data-w="1080" data-h="1350">4:5</button>
+        <button class="preset-btn py-2 text-xs font-bold rounded-lg bg-white border border-slate-300" data-w="1080" data-h="1920">9:16</button>
+      </div>
+    </div>
+
+    <!-- EXPORT & RENDER -->
+    <div class="grid grid-cols-2 gap-3 mt-auto">
+      <button 
+        id="reRenderBtn" 
+        class="py-3 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 transition flex items-center justify-center gap-1.5"
+      >
+        <span>🔄</span> Re-render Canvas
+      </button>
+
+      <button id="downloadBtn" class="py-3 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 shadow hover:brightness-105 transition">
+        Export Master PNG
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- PREVIEW -->
+  <main class="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-auto">
+    <div class="w-full max-w-[960px] flex flex-col gap-4 items-center">
+      <div class="w-full flex items-center justify-between text-xs text-slate-600 px-2 font-mono">
+        <span id="activeCompositionName">Luminous Editorial</span>
+        <span id="dimensionDisplay" class="font-semibold">1080 × 1350 px</span>
+      </div>
+
+      <div class="w-full min-h-[540px] rounded-3xl bg-white border border-slate-200 p-4 lg:p-8 flex items-center justify-center shadow-2xl">
+        <canvas id="previewCanvas" class="rounded-xl shadow-xl ring-1 ring-slate-200"></canvas>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const previewCanvas = $("previewCanvas");
+
+let canvasW = 1080;
+let canvasH = 1350;
+const PREVIEW_MAX_DIMENSION = 760;
+
+let currentDesign = null;
+let activeLoadedImage = null;
+let activeLogoImage = null;
+let activeLibraryImageId = null;
+let activeLibraryCategory = "all";
+let activeImageAnalysis = null;
+let activeImageSourceMeta = { source: "procedural", id: "procedural-gradient", label: "Procedural Gradient" };
+let activeLogoSourceMeta = { source: "generated", id: "generated-seal", label: "Generated seal" };
+let renderFrame = null;
+let lastRenderReport = { ok: true, warnings: [] };
+let lastCompositionScore = null;
+let autoRelayoutGuard = false;
+let lastGenerativeRequest = null;
+let lastGeneratedAssetCandidate = null;
+let lastGenerationValidation = null;
+let generationRequestCounter = 0;
+let generationInFlight = false;
+let hybridResolveInFlight = false;
+let lastHybridResolution = null;
+let gradioClientModule = null;
+let cachedGradioClient = null;
+let cachedGradioSpaceId = null;
+const HYBRID_ASSET_CACHE = new Map();
+
+const LAYOUT_OPTIONS = ["left", "right", "center", "lower"];
+
+const SCORE_WEIGHTS = Object.freeze({
+  textFit: 25,
+  collisionSafety: 20,
+  contrast: 15,
+  brandCompliance: 15,
+  visualBalance: 10,
+  negativeSpace: 10,
+  imageQuality: 5
+});
+
+/* =========================================================
+   CURATED LIFE EDUCATION IMAGE REPOSITORY
+========================================================= */
+
+const LIFE_EDUCATION_LIBRARY = [
+  {
+    id: "mindfulness_1",
+    category: "mindfulness",
+    title: "Meditation & Clarity",
+    thumb: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Awakening] Emotional Resilience",
+    subheading: "Developing calm self-awareness and mindful attention as core anchors for learning and lifelong balance."
+  },
+  {
+    id: "mentorship_1",
+    category: "mentorship",
+    title: "Guiding Mentorship",
+    thumb: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Wisdom] Passed Forward",
+    subheading: "Mentorship is not about enforcing answers—it is about cultivating curiosity, courage, and integrity."
+  },
+  {
+    id: "experiential_1",
+    category: "experiential",
+    title: "Outdoor Discovery",
+    thumb: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Beyond] Classroom Walls",
+    subheading: "True character is forged in the open world through experiential exploration, challenge, and reflection."
+  },
+  {
+    id: "community_1",
+    category: "community",
+    title: "Collaborative Empathy",
+    thumb: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Together] We Grow",
+    subheading: "Empathetic communication and collective support turn education into a lifelong community foundation."
+  },
+  {
+    id: "mindfulness_2",
+    category: "mindfulness",
+    title: "Nature & Reflection",
+    thumb: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Silence] Cultivates Insight",
+    subheading: "Giving young minds the time and space to reflect on personal values, gratitude, and internal peace."
+  },
+  {
+    id: "experiential_2",
+    category: "experiential",
+    title: "Hands-on Learning",
+    thumb: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Action] Ignites Character",
+    subheading: "Learning by doing creates self-reliance, critical thinking, and adaptive problem-solving skills."
+  },
+  {
+    id: "community_2",
+    category: "community",
+    title: "Discussion Circle",
+    thumb: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Dialogues] In Understanding",
+    subheading: "Fostering psychological safety where diverse perspectives, active listening, and mutual respect thrive."
+  },
+  {
+    id: "mentorship_2",
+    category: "mentorship",
+    title: "Inspiring Potential",
+    thumb: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=300&q=80",
+    url: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=1600&q=85",
+    headline: "[Nurturing] The Human Spirit",
+    subheading: "Holistic life learning elevates ethical leadership, social empathy, and individual purpose."
+  }
+];
+
+/* =========================================================
+   STATIC BASE PALETTES
+========================================================= */
+
+const LUMINOUS_PALETTES = {
+  golden_hour: {
+    name: "Golden Hour",
+    base: "#251507",
+    highlightGrad: ["#fef08a", "#fbbf24", "#d97706"],
+    headlineColor: "#ffffff",
+    textMuted: "#fef3c7",
+    accentPill: "#f59e0b",
+    sunColorRgb: [254, 240, 138],
+    tintRgb: [245, 158, 11]
+  },
+  botanical_sage: {
+    name: "Botanical Sage",
+    base: "#0d2319",
+    highlightGrad: ["#d1fae5", "#34d399", "#059669"],
+    headlineColor: "#ffffff",
+    textMuted: "#dcfce7",
+    accentPill: "#10b981",
+    sunColorRgb: [209, 250, 229],
+    tintRgb: [16, 185, 129]
+  },
+  sunlit_sandstone: {
+    name: "Sunlit Sandstone",
+    base: "#261208",
+    highlightGrad: ["#ffedd5", "#fb923c", "#ea580c"],
+    headlineColor: "#ffffff",
+    textMuted: "#fed7aa",
+    accentPill: "#ea580c",
+    sunColorRgb: [255, 237, 213],
+    tintRgb: [234, 88, 12]
+  },
+  luminous_sky: {
+    name: "Luminous Sky",
+    base: "#0e1c2e",
+    highlightGrad: ["#e0f2fe", "#38bdf8", "#0284c7"],
+    headlineColor: "#ffffff",
+    textMuted: "#bae6fd",
+    accentPill: "#38bdf8",
+    sunColorRgb: [224, 242, 254],
+    tintRgb: [14, 165, 233]
+  },
+  sunrise_coral: {
+    name: "Sunrise Coral",
+    base: "#290c14",
+    highlightGrad: ["#ffe4e6", "#fb7185", "#e11d48"],
+    headlineColor: "#ffffff",
+    textMuted: "#fecdd3",
+    accentPill: "#f43f5e",
+    sunColorRgb: [255, 228, 230],
+    tintRgb: [244, 63, 94]
+  }
+};
+
+const EDITORIAL_TYPE_PAIRINGS = [
+  { headline: "'Rozha One', serif", body: "'Plus Jakarta Sans', sans-serif" },
+  { headline: "'Cinzel Decorative', serif", body: "'Plus Jakarta Sans', sans-serif" },
+  { headline: "'Playfair Display', serif", body: "'DM Sans', sans-serif" },
+  { headline: "'Syne', sans-serif", body: "'Plus Jakarta Sans', sans-serif" },
+  { headline: "'Cormorant Garamond', serif", body: "'Inter', sans-serif" }
+];
+
+/* =========================================================
+   CREATIVE ARCHETYPES
+========================================================= */
+
+const CREATIVE_ARCHETYPES = {
+  auto: {
+    label: "Balanced Editorial",
+    description: "Balanced editorial hierarchy with flexible layouts and optional feature points.",
+    preferredLayouts: ["left", "right", "center", "lower"],
+    headline: { scale: 1.00, maxLines: 5, height: 0.26 },
+    body: { scale: 1.00, maxLines: 5, height: 0.13 },
+    features: { mode: "optional", maxItems: 3 },
+    composition: { widthScale: 1.00, startYOffset: 0.00, protectionBoost: 0.00 },
+    logoZone: "auto"
+  },
+  hero_statement: {
+    label: "Hero Statement",
+    description: "Headline-first creative: large statement, one dominant visual, minimal supporting copy, high negative space.",
+    preferredLayouts: ["center", "left", "right"],
+    headline: { scale: 1.18, maxLines: 3, height: 0.30 },
+    body: { scale: 0.88, maxLines: 3, height: 0.10 },
+    features: { mode: "none", maxItems: 0 },
+    composition: { widthScale: 1.05, startYOffset: -0.015, protectionBoost: 0.08 },
+    logoZone: "auto"
+  },
+  editorial_story: {
+    label: "Editorial Story",
+    description: "Magazine-style balance: image and headline share priority, with room for a meaningful short narrative.",
+    preferredLayouts: ["left", "right", "lower"],
+    headline: { scale: 1.00, maxLines: 4, height: 0.25 },
+    body: { scale: 1.04, maxLines: 5, height: 0.15 },
+    features: { mode: "optional", maxItems: 2 },
+    composition: { widthScale: 1.00, startYOffset: 0.00, protectionBoost: 0.03 },
+    logoZone: "auto"
+  },
+  educational_explainer: {
+    label: "Educational Explainer",
+    description: "Information-led structure with a clear headline, concise explanation and strong takeaway points.",
+    preferredLayouts: ["left", "right", "lower"],
+    headline: { scale: 0.94, maxLines: 4, height: 0.23 },
+    body: { scale: 0.94, maxLines: 4, height: 0.12 },
+    features: { mode: "strong", maxItems: 3 },
+    composition: { widthScale: 1.05, startYOffset: -0.01, protectionBoost: 0.05 },
+    logoZone: "auto"
+  },
+  quote_thought: {
+    label: "Quote / Thought",
+    description: "A single thought dominates. Supporting copy is deliberately restrained and feature points are suppressed.",
+    preferredLayouts: ["center", "left"],
+    headline: { scale: 1.12, maxLines: 5, height: 0.34 },
+    body: { scale: 0.82, maxLines: 2, height: 0.08 },
+    features: { mode: "none", maxItems: 0 },
+    composition: { widthScale: 1.08, startYOffset: -0.005, protectionBoost: 0.08 },
+    logoZone: "top-right"
+  },
+  product_hero: {
+    label: "Product Hero",
+    description: "Commercial hierarchy prepared for a dominant product asset: compact headline, benefit copy and limited proof points.",
+    preferredLayouts: ["left", "right", "lower"],
+    headline: { scale: 1.03, maxLines: 3, height: 0.23 },
+    body: { scale: 0.88, maxLines: 3, height: 0.10 },
+    features: { mode: "optional", maxItems: 2 },
+    composition: { widthScale: 0.94, startYOffset: 0.00, protectionBoost: 0.05 },
+    logoZone: "auto"
+  },
+  feature_stack: {
+    label: "Feature Stack",
+    description: "Utility-led layout where benefits and proof points carry more visual weight than decorative storytelling.",
+    preferredLayouts: ["left", "right"],
+    headline: { scale: 0.90, maxLines: 3, height: 0.21 },
+    body: { scale: 0.84, maxLines: 3, height: 0.09 },
+    features: { mode: "strong", maxItems: 3 },
+    composition: { widthScale: 1.06, startYOffset: -0.015, protectionBoost: 0.05 },
+    logoZone: "auto"
+  },
+  announcement: {
+    label: "Announcement",
+    description: "Typography-led communication for launches, events and notices, with a compact supporting information block.",
+    preferredLayouts: ["center", "left", "right"],
+    headline: { scale: 1.10, maxLines: 3, height: 0.27 },
+    body: { scale: 0.94, maxLines: 4, height: 0.12 },
+    features: { mode: "optional", maxItems: 2 },
+    composition: { widthScale: 1.08, startYOffset: -0.01, protectionBoost: 0.06 },
+    logoZone: "top-right"
+  },
+  emotional_story: {
+    label: "Emotional Human Story",
+    description: "Human emotion and imagery lead; copy stays short, intimate and high-impact with generous breathing room.",
+    preferredLayouts: ["left", "right"],
+    headline: { scale: 1.10, maxLines: 3, height: 0.27 },
+    body: { scale: 0.88, maxLines: 3, height: 0.10 },
+    features: { mode: "none", maxItems: 0 },
+    composition: { widthScale: 0.98, startYOffset: 0.00, protectionBoost: 0.10 },
+    logoZone: "auto"
+  },
+  campaign_provocation: {
+    label: "Campaign / Provocation",
+    description: "Bold campaign statement with aggressive hierarchy, high contrast and almost no secondary clutter.",
+    preferredLayouts: ["center", "left", "right"],
+    headline: { scale: 1.24, maxLines: 3, height: 0.31 },
+    body: { scale: 0.76, maxLines: 2, height: 0.07 },
+    features: { mode: "none", maxItems: 0 },
+    composition: { widthScale: 1.04, startYOffset: -0.02, protectionBoost: 0.12 },
+    logoZone: "top-right"
+  }
+};
+
+function getArchetypeConfig(key) {
+  return CREATIVE_ARCHETYPES[key] || CREATIVE_ARCHETYPES.auto;
+}
+
+function updateArchetypeDescription() {
+  const key = $("archetypeSelect")?.value || "auto";
+  const cfg = getArchetypeConfig(key);
+  if ($("archetypeDescription")) {
+    const featureText = cfg.features.mode === "none" ? "Features hidden" : cfg.features.mode === "strong" ? `Up to ${cfg.features.maxItems} strong feature points` : `Up to ${cfg.features.maxItems} optional feature points`;
+    $("archetypeDescription").textContent = `${cfg.description} ${featureText}. Preferred layouts: ${cfg.preferredLayouts.join(", ")}.`;
+  }
+}
+
+/* =========================================================
+   GENERATIVE VISUAL CONFIGURATION
+========================================================= */
+
+const ARCHETYPE_GENERATIVE_HINTS = Object.freeze({
+  auto: "balanced editorial scene, meaningful but restrained visual storytelling, useful negative space",
+  hero_statement: "one dominant hero subject, bold visual simplicity, generous negative space, strong editorial focal point",
+  editorial_story: "magazine-style environmental storytelling, authentic context, layered depth, natural editorial composition",
+  educational_explainer: "calm contextual scene with low visual clutter, clear supporting imagery, broad readable negative space",
+  quote_thought: "minimal contemplative atmosphere, understated visual metaphor, large calm areas, no distracting detail",
+  product_hero: "premium commercial environment prepared for a separately composited real product pack, clean product-safe staging area",
+  feature_stack: "clean utility-led environment, restrained visual detail, strong negative space for feature copy",
+  announcement: "minimal high-impact campaign background, typography-safe composition, simple visual anchor",
+  emotional_story: "single authentic human subject, emotionally legible moment, cinematic but natural, intimate framing",
+  campaign_provocation: "bold editorial tension, strong contrast, memorable visual metaphor, uncluttered campaign composition"
+});
+
+const ARCHETYPE_AUTO_MOOD = Object.freeze({
+  auto: "warm",
+  hero_statement: "hopeful",
+  editorial_story: "warm",
+  educational_explainer: "calm",
+  quote_thought: "spiritual",
+  product_hero: "premium",
+  feature_stack: "technical",
+  announcement: "energetic",
+  emotional_story: "hopeful",
+  campaign_provocation: "provocative"
+});
+
+const ARCHETYPE_AUTO_STYLE = Object.freeze({
+  auto: "cinematic_editorial",
+  hero_statement: "cinematic_editorial",
+  editorial_story: "natural_photography",
+  educational_explainer: "minimal_editorial",
+  quote_thought: "minimal_editorial",
+  product_hero: "premium_commercial",
+  feature_stack: "minimal_editorial",
+  announcement: "graphic_campaign",
+  emotional_story: "cinematic_editorial",
+  campaign_provocation: "graphic_campaign"
+});
+
+const GENERATIVE_STYLE_HINTS = Object.freeze({
+  cinematic_editorial: "cinematic editorial photography, realistic natural detail, controlled depth of field, sophisticated lighting",
+  natural_photography: "authentic documentary-style photography, natural light, realistic environment, candid visual language",
+  minimal_editorial: "minimal editorial art direction, restrained background detail, clean shapes and large quiet regions",
+  premium_commercial: "premium commercial photography, refined lighting, polished materials, realistic high-end art direction",
+  soft_illustration: "soft editorial illustration, refined shapes, subtle texture, sophisticated non-cartoon visual language",
+  graphic_campaign: "bold modern campaign art direction, graphic visual hierarchy, high-impact shapes, controlled contrast"
+});
+
+function stripRichMarkers(text) {
+  return String(text ?? "").replace(/\[([^\]]+)\]/g, "$1").replace(/\s+/g, " ").trim();
+}
+
+function oppositeVisualZone(textZone) {
+  if (textZone === "left") return "right";
+  if (textZone === "right") return "left";
+  if (textZone === "lower") return "center";
+  return "right";
+}
+
+function resolveGenerativeMood(spec, plan) {
+  const selected = spec.generative?.mood || "auto";
+  return selected === "auto" ? (ARCHETYPE_AUTO_MOOD[plan.archetypeKey] || "warm") : selected;
+}
+
+function resolveGenerativeStyle(spec, plan) {
+  const selected = spec.generative?.style || "auto";
+  const key = selected === "auto" ? (ARCHETYPE_AUTO_STYLE[plan.archetypeKey] || "cinematic_editorial") : selected;
+  return { key, hint: GENERATIVE_STYLE_HINTS[key] || GENERATIVE_STYLE_HINTS.cinematic_editorial };
+}
+
+/* =========================================================
+   CHROMA.JS PALETTE ENGINE
+========================================================= */
+
+function buildEditorialPaletteFromChromaColors(colors, name = "Chroma Harmony") {
+  const sorted = colors.map(c => chroma(c)).sort((a, b) => a.luminance() - b.luminance());
+
+  const baseColor = sorted[0].luminance(0.015);
+  const brightColor = sorted[sorted.length - 1].luminance(0.85);
+  const midBright = sorted[Math.floor(sorted.length * 0.75)].luminance(0.55);
+  const midHigh = sorted[Math.floor(sorted.length * 0.5)].luminance(0.35);
+
+  const textMuted = chroma.mix(brightColor, "#ffffff", 0.5, "lab").hex();
+  const accentPill = midBright.hex();
+  const sunColorRgb = brightColor.rgb();
+  const tintRgb = midBright.rgb();
+
+  return {
+    name,
+    base: baseColor.hex(),
+    highlightGrad: [brightColor.hex(), midBright.hex(), midHigh.hex()],
+    headlineColor: "#ffffff",
+    textMuted,
+    accentPill,
+    sunColorRgb,
+    tintRgb
+  };
+}
+
+function generateChromaPalette(model = "analogous", rng = Math.random) {
+  const baseHue = rng() * 360;
+  let colors = [];
+  let name = "Chroma Harmony";
+
+  if (model === "analogous") {
+    name = "Chroma Analogous";
+    const base = chroma.hsl(baseHue, 0.8, 0.5);
+    colors = [
+      chroma.hsl((baseHue - 35 + 360) % 360, 0.75, 0.25),
+      chroma.hsl((baseHue - 15 + 360) % 360, 0.8, 0.45),
+      base,
+      chroma.hsl((baseHue + 20) % 360, 0.85, 0.65),
+      chroma.hsl((baseHue + 40) % 360, 0.9, 0.8)
+    ];
+  } else if (model === "triadic") {
+    name = "Chroma Triadic";
+    colors = [
+      chroma.hsl(baseHue, 0.85, 0.2),
+      chroma.hsl(baseHue, 0.8, 0.45),
+      chroma.hsl((baseHue + 120) % 360, 0.85, 0.6),
+      chroma.hsl((baseHue + 240) % 360, 0.9, 0.75),
+      chroma.hsl((baseHue + 120) % 360, 0.9, 0.88)
+    ];
+  } else if (model === "complementary") {
+    name = "Chroma Complementary";
+    const compHue = (baseHue + 180) % 360;
+    colors = [
+      chroma.hsl(baseHue, 0.85, 0.18),
+      chroma.hsl(baseHue, 0.8, 0.4),
+      chroma.hsl(compHue, 0.85, 0.55),
+      chroma.hsl((compHue + 30) % 360, 0.9, 0.72),
+      chroma.hsl(compHue, 0.9, 0.86)
+    ];
+  } else if (model === "bezier") {
+    name = "Chroma Multi-Hue Scale";
+    const c1 = chroma.hsl(baseHue, 0.85, 0.15);
+    const c2 = chroma.hsl((baseHue + 60) % 360, 0.8, 0.5);
+    const c3 = chroma.hsl((baseHue + 140) % 360, 0.9, 0.85);
+    colors = chroma.bezier([c1, c2, c3]).scale().correctLightness().colors(5);
+  }
+
+  return buildEditorialPaletteFromChromaColors(colors, name);
+}
+
+function updatePaletteSwatches(palette, sourceLabel) {
+  $("paletteSourceLabel").textContent = sourceLabel;
+  const container = $("paletteSwatches");
+  container.innerHTML = `
+    <div class="flex-1" style="background:${palette.base}"></div>
+    <div class="flex-1" style="background:${palette.highlightGrad[0]}"></div>
+    <div class="flex-1" style="background:${palette.highlightGrad[1]}"></div>
+    <div class="flex-1" style="background:${palette.highlightGrad[2]}"></div>
+    <div class="flex-1" style="background:${palette.accentPill}"></div>
+  `;
+}
+
+function clusterDominantColors(image, k = 5) {
+  const offCanvas = document.createElement("canvas");
+  offCanvas.width = 72;
+  offCanvas.height = 72;
+  const offCtx = offCanvas.getContext("2d", { willReadFrequently: true });
+  offCtx.drawImage(image, 0, 0, offCanvas.width, offCanvas.height);
+  const data = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height).data;
+  const pixels = [];
+  for (let i = 0; i < data.length; i += 16) {
+    const a = data[i + 3];
+    if (a < 200) continue;
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    if (max > 250 && min > 246) continue;
+    pixels.push([r, g, b]);
+  }
+  if (pixels.length < k) throw new Error("Not enough image data for palette extraction");
+
+  const step = Math.max(1, Math.floor(pixels.length / k));
+  let centers = Array.from({ length: k }, (_, i) => pixels[Math.min(pixels.length - 1, i * step)].slice());
+  let assignments = new Array(pixels.length).fill(0);
+
+  for (let iteration = 0; iteration < 10; iteration++) {
+    const sums = Array.from({ length: k }, () => [0, 0, 0, 0]);
+    pixels.forEach((p, idx) => {
+      let best = 0, bestD = Infinity;
+      centers.forEach((c, ci) => {
+        const d = (p[0]-c[0])**2 + (p[1]-c[1])**2 + (p[2]-c[2])**2;
+        if (d < bestD) { bestD = d; best = ci; }
+      });
+      assignments[idx] = best;
+      sums[best][0] += p[0]; sums[best][1] += p[1]; sums[best][2] += p[2]; sums[best][3]++;
+    });
+    centers = centers.map((c, i) => sums[i][3] ? [sums[i][0]/sums[i][3], sums[i][1]/sums[i][3], sums[i][2]/sums[i][3]] : c);
+  }
+
+  const counts = new Array(k).fill(0);
+  assignments.forEach(a => counts[a]++);
+  return centers
+    .map((c, i) => ({ color: chroma(c[0], c[1], c[2]).hex(), count: counts[i] }))
+    .sort((a, b) => b.count - a.count)
+    .map(v => v.color);
+}
+
+function extractPaletteFromCurrentImage() {
+  if (!activeLoadedImage) {
+    alert("Please select or upload an image first to extract its palette.");
+    return;
+  }
+  try {
+    const dominant = clusterDominantColors(activeLoadedImage, 5);
+    const matchedPalette = buildEditorialPaletteFromChromaColors(dominant, "Photo Dominant Palette");
+    if (!currentDesign) currentDesign = resolveScene(collectCreativeSpec(), { regenerate: true });
+    currentDesign.palette = matchedPalette;
+    currentDesign.moodKey = "photo_extract";
+    updatePaletteSwatches(matchedPalette, "Photo Dominant");
+    schedulePreviewRender();
+    setStatus("PALETTE SYNCED", "green");
+  } catch (err) {
+    console.error("Color extraction issue:", err);
+    alert("Could not extract the image palette. The remote image may block canvas access; try a local upload.");
+  }
+}
+
+/* =========================================================
+   LIBRARY UI & SELECTION HANDLING
+========================================================= */
+
+function renderImageLibrary(filterCat = activeLibraryCategory) {
+  activeLibraryCategory = filterCat || "all";
+  const grid = $("imageLibraryGrid");
+  grid.innerHTML = "";
+
+  const filtered = activeLibraryCategory === "all" 
+    ? LIFE_EDUCATION_LIBRARY 
+    : LIFE_EDUCATION_LIBRARY.filter(item => item.category === activeLibraryCategory);
+
+  filtered.forEach(item => {
+    const card = document.createElement("div");
+    card.className = `lib-thumb relative group cursor-pointer aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100 ${
+      activeLibraryImageId === item.id ? "active-thumb ring-2 ring-amber-500" : ""
+    }`;
+    card.title = `${item.title} (${item.category})`;
+
+    card.innerHTML = `
+      <img src="${item.thumb}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
+      <span class="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-semibold px-1 py-0.5 truncate text-center backdrop-blur-xs">
+        ${item.title}
+      </span>
+    `;
+
+    card.addEventListener("click", () => selectLibraryImage(item));
+    grid.appendChild(card);
+  });
+}
+
+function selectLibraryImage(item) {
+  setStatus("LOADING IMAGE...", "sky");
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    activeLoadedImage = img;
+    activeImageAnalysis = analyzeImageZones(img);
+    activeLibraryImageId = item.id;
+    activeImageSourceMeta = { source: "library", id: item.id, label: item.title, category: item.category };
+
+    $("activeImageSourceLabel").textContent = `Library: ${item.title}`;
+    $("clearLibrarySelectBtn").classList.remove("hidden");
+    $("clearImageBtn").classList.remove("hidden");
+    $("uploadLabel").textContent = `Selected: ${item.title}`;
+
+    if (item.headline) $("headlineInput").value = item.headline;
+    if (item.subheading) $("subheadingInput").value = item.subheading;
+
+    renderImageLibrary(activeLibraryCategory);
+    extractPaletteFromCurrentImage();
+    setStatus("PHOTO LOADED", "green");
+    schedulePreviewRender();
+  };
+  img.onerror = () => {
+    alert("Could not load image from remote server. Please try another one.");
+    setStatus("ERROR", "amber");
+  };
+  img.src = item.url;
+}
+
+function deselectAllImages() {
+  activeLoadedImage = null;
+  activeImageAnalysis = null;
+  activeLibraryImageId = null;
+  activeImageSourceMeta = { source: "procedural", id: "procedural-gradient", label: "Procedural Gradient" };
+  $("imageUpload").value = "";
+  $("uploadLabel").textContent = "Click to pick file...";
+  $("clearImageBtn").classList.add("hidden");
+  $("clearLibrarySelectBtn").classList.add("hidden");
+  $("activeImageSourceLabel").textContent = "Source: Procedural Gradient";
+  renderImageLibrary(activeLibraryCategory);
+  setStatus("PROCEDURAL", "amber");
+  schedulePreviewRender();
+}
+
+/* =========================================================
+   RANDOM HELPERS & DESIGN STATE
+========================================================= */
+
+function randomItem(array, rng = Math.random) {
+  return array[Math.floor(rng() * array.length)];
+}
+
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return function () {
+    state += 0x6D2B79F5;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getAspectProfile() {
+  const ratio = canvasW / canvasH;
+  if (ratio > 0.95) return "square";
+  if (ratio < 0.62) return "story";
+  return "portrait";
+}
+
+function analyzeImageZones(image) {
+  try {
+    const c = document.createElement("canvas");
+    c.width = 90;
+    c.height = 90;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    x.drawImage(image, 0, 0, c.width, c.height);
+    const img = x.getImageData(0, 0, c.width, c.height);
+    const d = img.data;
+    const zoneStats = {
+      left: { n: 0, lum: 0, edge: 0, variance: 0, values: [] },
+      center: { n: 0, lum: 0, edge: 0, variance: 0, values: [] },
+      right: { n: 0, lum: 0, edge: 0, variance: 0, values: [] },
+      lower: { n: 0, lum: 0, edge: 0, variance: 0, values: [] }
+    };
+    const lumAt = (px, py) => {
+      const i = (py * c.width + px) * 4;
+      return 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    };
+    for (let py = 1; py < c.height - 1; py++) {
+      for (let px = 1; px < c.width - 1; px++) {
+        const lum = lumAt(px, py);
+        const gx = Math.abs(lumAt(px + 1, py) - lumAt(px - 1, py));
+        const gy = Math.abs(lumAt(px, py + 1) - lumAt(px - 1, py - 1));
+        const edge = gx + gy;
+        const zone = py > c.height * 0.64 ? "lower" : px < c.width / 3 ? "left" : px > c.width * 2 / 3 ? "right" : "center";
+        const z = zoneStats[zone];
+        z.n++; z.lum += lum; z.edge += edge; z.values.push(lum);
+      }
+    }
+    Object.values(zoneStats).forEach(z => {
+      z.lum /= Math.max(1, z.n);
+      z.edge /= Math.max(1, z.n);
+      const mean = z.lum;
+      z.variance = z.values.reduce((a, v) => a + (v - mean) ** 2, 0) / Math.max(1, z.values.length);
+      z.score = z.edge * 0.75 + Math.sqrt(z.variance) * 0.25;
+      delete z.values;
+    });
+    const safestTextZone = Object.entries(zoneStats).sort((a, b) => a[1].score - b[1].score)[0][0];
+    return { zones: zoneStats, safestTextZone };
+  } catch (err) {
+    console.warn("Image analysis unavailable:", err);
+    return null;
+  }
+}
+
+/* =========================================================
+   ASSET RESOLVER
+========================================================= */
+
+const ASSET_PROVIDER_REGISTRY = new Map();
+
+function registerAssetProvider(name, provider) {
+  if (!name || !provider) throw new Error("Asset provider requires a name and provider object");
+  ASSET_PROVIDER_REGISTRY.set(name, provider);
+}
+
+registerAssetProvider("current", {
+  resolveBackground(spec) {
+    if (spec.media.image) {
+      return {
+        kind: "image",
+        source: spec.media.imageSource?.source || "current",
+        id: spec.media.imageSource?.id || "active-image",
+        label: spec.media.imageSource?.label || "Current image",
+        image: spec.media.image,
+        analysis: spec.media.imageAnalysis || null,
+        provider: spec.media.imageSource?.provider || null,
+        generationScore: spec.media.imageSource?.generationScore ?? null,
+        protected: false
+      };
+    }
+    return {
+      kind: "procedural",
+      source: "procedural",
+      id: "procedural-gradient",
+      label: "Procedural Gradient",
+      image: null,
+      analysis: null,
+      protected: false
+    };
+  },
+  resolveLogo(spec) {
+    if (spec.media.logo) {
+      return {
+        kind: "image",
+        source: spec.media.logoSource?.source || "upload",
+        id: spec.media.logoSource?.id || "brand-logo",
+        label: spec.media.logoSource?.label || "Uploaded logo",
+        image: spec.media.logo,
+        protected: true
+      };
+    }
+    return {
+      kind: "generated-seal",
+      source: "generated",
+      id: "generated-seal",
+      label: "Generated seal",
+      image: null,
+      protected: true
+    };
+  }
+});
+
+/* =========================================================
+   V2.4 HYBRID ASSET INTELLIGENCE
+========================================================= */
+
+const HYBRID_PROVIDER_COST = Object.freeze({
+  cache: 100,
+  current: 98,
+  upload: 98,
+  library: 94,
+  procedural: 100,
+  generative: 35
+});
+
+const PROCEDURAL_ARCHETYPE_FIT = Object.freeze({
+  auto: 76,
+  hero_statement: 78,
+  editorial_story: 54,
+  educational_explainer: 74,
+  quote_thought: 94,
+  product_hero: 82,
+  feature_stack: 90,
+  announcement: 94,
+  emotional_story: 42,
+  campaign_provocation: 91
+});
+
+function simpleTokens(text) {
+  return [...new Set(String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0900-\u097f]+/g, " ")
+    .split(/\s+/)
+    .filter(t => t.length >= 3))];
+}
+
+function lexicalRelevance(query, candidateText) {
+  const q = simpleTokens(query);
+  const c = new Set(simpleTokens(candidateText));
+  if (!q.length) return 55;
+  const hits = q.filter(t => c.has(t)).length;
+  const containment = hits / q.length;
+  return Math.max(20, Math.min(100, 25 + containment * 75));
+}
+
+function hybridRequestSignature(spec, request) {
+  const raw = [
+    request.archetype,
+    request.profile,
+    request.protectedTextZone,
+    request.preferredSubjectZone,
+    request.mood,
+    request.visualStyle,
+    String(request.conceptText || "").toLowerCase().trim()
+  ].join("|");
+  let h = 2166136261;
+  for (let i = 0; i < raw.length; i++) {
+    h ^= raw.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return `hybrid-${(h >>> 0).toString(16)}`;
+}
+
+function getHybridConfigFromUI() {
+  return {
+    mode: $("hybridModeSelect")?.value || "auto",
+    threshold: Number($("hybridReuseThreshold")?.value || 80),
+    allowCurrent: $("hybridAllowCurrent")?.checked !== false,
+    allowLibrary: $("hybridAllowLibrary")?.checked !== false,
+    allowProcedural: $("hybridAllowProcedural")?.checked !== false,
+    allowGenerative: $("hybridAllowGenerative")?.checked !== false,
+    enableCache: $("hybridEnableCache")?.checked !== false
+  };
+}
+
+function scoreImageCandidate({ image, analysis, semanticScore = 70, archetypeFit = 78, source = "current", request }) {
+  const iw = image?.naturalWidth || image?.width || 0;
+  const ih = image?.naturalHeight || image?.height || 0;
+  const targetW = request.dimensions.width;
+  const targetH = request.dimensions.height;
+  const targetRatio = targetW / targetH;
+  const ratio = iw / Math.max(1, ih);
+  const ratioError = Math.abs(ratio - targetRatio) / targetRatio;
+  const aspect = Math.max(0, 100 - ratioError * 240);
+  const resolution = Math.max(0, Math.min(100, Math.min(iw / targetW, ih / targetH) * 100));
+  const negativeSpace = analysis ? normalizeZoneSafety(analysis, request.protectedTextZone) : 45;
+  const quality = resolution * 0.65 + aspect * 0.35;
+  const reuseEfficiency = HYBRID_PROVIDER_COST[source] ?? 75;
+  const score = semanticScore * 0.30 + negativeSpace * 0.27 + quality * 0.18 + archetypeFit * 0.15 + reuseEfficiency * 0.10;
+  return {
+    score: Math.round(score * 10) / 10,
+    metrics: { semantic: semanticScore, negativeSpace, quality, archetypeFit, reuseEfficiency, aspect, resolution }
+  };
+}
+
+function scoreProceduralCandidate(request) {
+  const archetypeFit = PROCEDURAL_ARCHETYPE_FIT[request.archetype] ?? 70;
+  const semantic = request.prefersAbstractOrProcedural ? 88 : request.requiresHumanStory ? 32 : 66;
+  const negativeSpace = 98;
+  const quality = 100;
+  const reuseEfficiency = 100;
+  const score = semantic * 0.30 + negativeSpace * 0.27 + quality * 0.18 + archetypeFit * 0.15 + reuseEfficiency * 0.10;
+  return { score: Math.round(score * 10) / 10, metrics: { semantic, negativeSpace, quality, archetypeFit, reuseEfficiency, aspect: 100, resolution: 100 } };
+}
+
+function libraryItemText(item) {
+  return [item.category, item.title, item.headline, item.subheading].filter(Boolean).join(" ");
+}
+
+function rankLibraryItems(request) {
+  return LIFE_EDUCATION_LIBRARY
+    .map(item => ({ item, lexical: lexicalRelevance(request.conceptText, libraryItemText(item)) }))
+    .sort((a, b) => b.lexical - a.lexical);
+}
+
+function loadLibraryImageForHybrid(item) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Could not load library image: ${item.title}`));
+    img.src = item.url;
+  });
+}
+
+async function discoverLibraryHybridCandidates(request, maxCandidates = 4) {
+  const ranked = rankLibraryItems(request).slice(0, maxCandidates);
+  const candidates = [];
+  for (const entry of ranked) {
+    try {
+      const image = await loadLibraryImageForHybrid(entry.item);
+      const analysis = analyzeImageZones(image);
+      const archetypeFit = request.requiresHumanStory ? 86 : request.prefersAbstractOrProcedural ? 68 : 78;
+      const scoring = scoreImageCandidate({
+        image,
+        analysis,
+        semanticScore: entry.lexical,
+        archetypeFit,
+        source: "library",
+        request
+      });
+      candidates.push({
+        id: `library-${entry.item.id}`,
+        provider: "library",
+        source: "library",
+        label: entry.item.title,
+        kind: "image",
+        image,
+        analysis,
+        libraryItem: entry.item,
+        score: scoring.score,
+        metrics: scoring.metrics
+      });
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+  return candidates;
+}
+
+function discoverCurrentHybridCandidate(spec, request) {
+  if (!spec.media.image) return null;
+  const src = spec.media.imageSource?.source || "current";
+  const semantic = src === "upload" ? 92 : src === "generative" ? 94 : src === "library" ? 78 : 72;
+  const archetypeFit = request.requiresHumanStory && src === "procedural" ? 40 : 80;
+  const scoring = scoreImageCandidate({
+    image: spec.media.image,
+    analysis: spec.media.imageAnalysis,
+    semanticScore: semantic,
+    archetypeFit,
+    source: src === "upload" ? "upload" : "current",
+    request
+  });
+  return {
+    id: spec.media.imageSource?.id || "current-image",
+    provider: "current",
+    source: src,
+    label: spec.media.imageSource?.label || "Current image",
+    kind: "image",
+    image: spec.media.image,
+    analysis: spec.media.imageAnalysis,
+    score: scoring.score,
+    metrics: scoring.metrics
+  };
+}
+
+function discoverProceduralHybridCandidate(request) {
+  const scoring = scoreProceduralCandidate(request);
+  return {
+    id: "procedural-gradient",
+    provider: "procedural",
+    source: "procedural",
+    label: "Procedural Gradient Scene",
+    kind: "procedural",
+    image: null,
+    analysis: null,
+    score: scoring.score,
+    metrics: scoring.metrics
+  };
+}
+
+function discoverCachedHybridCandidate(signature, request) {
+  const cached = HYBRID_ASSET_CACHE.get(signature);
+  if (!cached?.image) return null;
+  const scoring = scoreImageCandidate({
+    image: cached.image,
+    analysis: cached.analysis,
+    semanticScore: 98,
+    archetypeFit: 94,
+    source: "cache",
+    request
+  });
+  return {
+    ...cached,
+    id: cached.id || signature,
+    provider: "cache",
+    source: "generative-cache",
+    label: `${cached.label || "Generated asset"} • cached`,
+    score: Math.max(scoring.score, cached.score || 0),
+    metrics: scoring.metrics
+  };
+}
+
+function hybridProviderBias(mode, provider) {
+  if (mode === "generative_first") return provider === "generative" ? 20 : -12;
+  if (mode === "procedural_first") return provider === "procedural" ? 10 : 0;
+  if (mode === "reuse_first") return ["cache", "current", "library"].includes(provider) ? 8 : provider === "generative" ? -15 : 0;
+  return provider === "generative" ? -8 : 0;
+}
+
+function chooseHybridCandidate(candidates, mode) {
+  if (!candidates.length) return null;
+  return [...candidates]
+    .map(c => ({ ...c, decisionScore: c.score + hybridProviderBias(mode, c.provider) }))
+    .sort((a, b) => b.decisionScore - a.decisionScore)[0];
+}
+
+function activateProceduralHybridBackground() {
+  activeLoadedImage = null;
+  activeImageAnalysis = null;
+  activeLibraryImageId = null;
+  activeImageSourceMeta = { source: "procedural", id: "procedural-gradient", label: "Procedural Gradient" };
+  $("imageUpload").value = "";
+  $("uploadLabel").textContent = "Click to pick file...";
+  $("clearImageBtn").classList.add("hidden");
+  $("clearLibrarySelectBtn").classList.add("hidden");
+  $("activeImageSourceLabel").textContent = "Source: Procedural Gradient";
+  renderImageLibrary(activeLibraryCategory);
+}
+
+function activateHybridImageCandidate(candidate) {
+  activeLoadedImage = candidate.image;
+  activeImageAnalysis = candidate.analysis || analyzeImageZones(candidate.image);
+  activeLibraryImageId = candidate.libraryItem?.id || null;
+  activeImageSourceMeta = {
+    source: candidate.source || candidate.provider,
+    id: candidate.id,
+    label: candidate.label,
+    provider: candidate.provider,
+    hybridScore: candidate.score
+  };
+  $("uploadLabel").textContent = candidate.label;
+  $("activeImageSourceLabel").textContent = `${capitalize(candidate.provider)}: ${candidate.label} • ${Math.round(candidate.score)}/100`;
+  $("clearImageBtn").classList.remove("hidden");
+  $("clearLibrarySelectBtn").classList.remove("hidden");
+  renderImageLibrary(activeLibraryCategory);
+}
+
+function applyHybridCandidate(candidate) {
+  if (!candidate) return;
+  if (candidate.kind === "procedural") activateProceduralHybridBackground();
+  else if (candidate.provider !== "current") activateHybridImageCandidate(candidate);
+  schedulePreviewRender();
+}
+
+function cacheAcceptedHybridGeneratedAsset(signature, candidate) {
+  if (!signature || !candidate?.result?.image || !candidate?.validation?.pass) return;
+  HYBRID_ASSET_CACHE.set(signature, {
+    id: signature,
+    provider: "cache",
+    source: "generative-cache",
+    label: `Generated ${candidate.request?.archetypeLabel || "visual"}`,
+    kind: "image",
+    image: candidate.result.image,
+    analysis: candidate.validation.analysis,
+    score: candidate.validation.score,
+    metadata: { prompt: candidate.request?.prompt, provider: candidate.result.provider }
+  });
+}
+
+function formatHybridCandidate(candidate) {
+  const m = candidate.metrics || {};
+  return `<div class="grid grid-cols-[1fr_auto] gap-2 py-1 border-b border-slate-100 last:border-0"><div><span class="font-semibold text-slate-700">${escapeHtml(candidate.label)}</span><span class="text-slate-400"> • ${escapeHtml(candidate.provider)}</span><div class="text-[8px] text-slate-400">semantic ${Math.round(m.semantic ?? 0)} • space ${Math.round(m.negativeSpace ?? 0)} • quality ${Math.round(m.quality ?? 0)} • archetype ${Math.round(m.archetypeFit ?? 0)}</div></div><div class="font-mono font-bold text-slate-700">${Math.round(candidate.score)}</div></div>`;
+}
+
+function updateHybridResolverUI({ status, candidates = [], selected = null, path = [] } = {}) {
+  const statusEl = $("hybridResolverStatus");
+  const breakdown = $("hybridResolverBreakdown");
+  if (statusEl) {
+    statusEl.className = selected
+      ? "text-[10px] px-2.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold"
+      : "text-[10px] px-2.5 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 font-semibold";
+    statusEl.textContent = status || "Hybrid resolver: READY";
+  }
+  if (breakdown) {
+    const pathHtml = path.length ? `<div class="mb-2"><span class="font-bold text-slate-600">Path:</span> ${path.map(escapeHtml).join(" → ")}</div>` : "";
+    const selectedHtml = selected ? `<div class="mb-2 text-emerald-700"><span class="font-bold">Selected:</span> ${escapeHtml(selected.label)} • ${Math.round(selected.score || 0)}/100</div>` : "";
+    const candidateHtml = candidates.length ? candidates.sort((a,b)=>(b.score||0)-(a.score||0)).map(formatHybridCandidate).join("") : "<div>No reusable candidates were available.</div>";
+    breakdown.innerHTML = pathHtml + selectedHtml + candidateHtml;
+  }
+}
+
+async function resolveHybridAssetIntelligence({ announce = true } = {}) {
+  if (hybridResolveInFlight) return lastHybridResolution;
+  hybridResolveInFlight = true;
+  const button = $("resolveHybridAssetBtn");
+  const originalLabel = button?.textContent;
+  if (button) { button.disabled = true; button.textContent = "Resolving…"; }
+
+  const path = [];
+  const candidates = [];
+  try {
+    const spec = collectCreativeSpec();
+    const cfg = spec.hybrid;
+    const scene = resolveScene(spec, { regenerate: false });
+    const plan = scene.compositionPlan || createCompositionPlan(spec);
+    const request = buildAssetRequest(spec, plan, scene.layout);
+    const signature = hybridRequestSignature(spec, request);
+
+    if (cfg.enableCache) {
+      path.push("Session cache");
+      const cached = discoverCachedHybridCandidate(signature, request);
+      if (cached) candidates.push(cached);
+    }
+
+    if (cfg.allowCurrent) {
+      path.push("Current/uploaded");
+      const current = discoverCurrentHybridCandidate(spec, request);
+      if (current) candidates.push(current);
+    }
+
+    if (cfg.allowLibrary) {
+      path.push("Curated library");
+      updateHybridResolverUI({ status: "Hybrid resolver: checking curated library…", candidates, path });
+      candidates.push(...await discoverLibraryHybridCandidates(request));
+    }
+
+    if (cfg.allowProcedural) {
+      path.push("Procedural");
+      candidates.push(discoverProceduralHybridCandidate(request));
+    }
+
+    let best = chooseHybridCandidate(candidates, cfg.mode);
+    const forceGenerative = cfg.mode === "generative_first" && cfg.allowGenerative;
+    const reusablePass = best && best.score >= cfg.threshold && !forceGenerative;
+
+    if (reusablePass) {
+      applyHybridCandidate(best);
+      lastHybridResolution = { selected: best, candidates, path, request, signature, usedGenerative: false };
+      updateHybridResolverUI({ status: `Hybrid resolver: REUSED ${best.provider.toUpperCase()} • ${Math.round(best.score)}/100`, candidates, selected: best, path });
+      if (announce) setStatus("HYBRID REUSED", "green");
+      return lastHybridResolution;
+    }
+
+    if (cfg.allowGenerative) {
+      path.push("Diffusers fallback");
+      updateHybridResolverUI({ status: "Hybrid resolver: reuse score insufficient — calling diffusion fallback…", candidates, path });
+      const generated = await runGenerativeAssetPipeline();
+      if (generated?.validation?.pass) {
+        cacheAcceptedHybridGeneratedAsset(signature, generated);
+        const generatedCandidate = {
+          id: generated.request.requestId,
+          provider: "generative",
+          source: "generative",
+          label: `Generated • ${generated.result.provider || "diffusers"}`,
+          kind: "image",
+          image: generated.result.image,
+          analysis: generated.validation.analysis,
+          score: generated.validation.score,
+          metrics: {
+            semantic: 95,
+            negativeSpace: generated.validation.metrics.negativeSpace,
+            quality: (generated.validation.metrics.resolution + generated.validation.metrics.aspect) / 2,
+            archetypeFit: 94,
+            reuseEfficiency: HYBRID_PROVIDER_COST.generative
+          }
+        };
+        candidates.push(generatedCandidate);
+        lastHybridResolution = { selected: generatedCandidate, candidates, path, request, signature, usedGenerative: true };
+        updateHybridResolverUI({ status: `Hybrid resolver: GENERATED • ${Math.round(generatedCandidate.score)}/100`, candidates, selected: generatedCandidate, path });
+        if (announce) setStatus("HYBRID GENERATED", "green");
+        return lastHybridResolution;
+      }
+    }
+
+    best = chooseHybridCandidate(candidates, cfg.mode);
+    if (best) {
+      applyHybridCandidate(best);
+      lastHybridResolution = { selected: best, candidates, path, request, signature, usedGenerative: false, belowThreshold: true };
+      updateHybridResolverUI({ status: `Hybrid resolver: FALLBACK ${best.provider.toUpperCase()} • ${Math.round(best.score)}/100`, candidates, selected: best, path });
+      if (announce) setStatus("HYBRID FALLBACK", "amber");
+      return lastHybridResolution;
+    }
+
+    lastHybridResolution = { selected: null, candidates, path, request, signature, usedGenerative: false };
+    updateHybridResolverUI({ status: "Hybrid resolver: NO ASSET AVAILABLE", candidates, path });
+    if (announce) setStatus("NO ASSET", "amber");
+    return lastHybridResolution;
+  } catch (err) {
+    console.error("Hybrid resolver error:", err);
+    updateHybridResolverUI({ status: `Hybrid resolver error: ${err.message}`, candidates, path });
+    if (announce) setStatus("HYBRID ERROR", "amber");
+    return null;
+  } finally {
+    hybridResolveInFlight = false;
+    if (button) { button.disabled = false; button.textContent = originalLabel || "Resolve Best Asset"; }
+  }
+}
+
+/* =========================================================
+   GENERATIVE PROVIDER REGISTRY & ZERO-GPU INTEGRATION
+========================================================= */
+
+const GENERATIVE_PROVIDER_REGISTRY = new Map();
+
+function registerGenerativeProvider(name, provider) {
+  if (!name || !provider?.generate) throw new Error("Generative provider requires a name and generate() method");
+  GENERATIVE_PROVIDER_REGISTRY.set(name, provider);
+}
+
+// Hugging Face ZeroGPU Browser Client Provider
+registerGenerativeProvider("hf_zerogpu", {
+  label: "Hugging Face ZeroGPU (Free Space)",
+  async generate(request, config = {}) {
+    const spaceId = String(config.endpoint || "").trim();
+    if (!spaceId) {
+      throw new Error("Enter your Hugging Face Space ID (e.g. username/my-image-engine) in the endpoint field.");
+    }
+
+    // Lazily load Gradio browser client from CDN
+    if (!gradioClientModule) {
+      setStatus("CONNECTING HF...", "sky");
+      gradioClientModule = await import("https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js");
+    }
+
+    const { Client } = gradioClientModule;
+    if (!cachedGradioClient || cachedGradioSpaceId !== spaceId) {
+      setStatus("CONNECTING SPACE...", "sky");
+      cachedGradioClient = await Client.connect(spaceId);
+      cachedGradioSpaceId = spaceId;
+    }
+
+    setStatus("DIFFUSION GENERATING...", "sky");
+    const result = await cachedGradioClient.predict("/predict", [
+      request.prompt,
+      request.seed
+    ]);
+
+    const filePayload = result.data[0];
+    const imageUrl = (filePayload && typeof filePayload === "object") ? filePayload.url : filePayload;
+
+    if (!imageUrl) {
+      throw new Error("Invalid output received from the Hugging Face Space prediction endpoint.");
+    }
+
+    const image = await loadImageFromGenerationSource(imageUrl);
+    return {
+      image,
+      provider: `hf-zerogpu/${spaceId}`,
+      providerMeta: { spaceId, seed: request.seed }
+    };
+  }
+});
+
+function buildAssetRequest(spec, plan, layout = null) {
+  const preferredTextZone = layout && LAYOUT_OPTIONS.includes(layout)
+    ? layout
+    : (plan.preferredLayouts?.[0] || "left");
+  const subjectZone = oppositeVisualZone(preferredTextZone);
+  const negativeSpaceCoverage = preferredTextZone === "center" ? 0.58 : preferredTextZone === "lower" ? 0.38 : 0.44;
+  return {
+    role: "background",
+    archetype: plan.archetypeKey,
+    archetypeLabel: plan.archetypeLabel,
+    profile: spec.dimensions.profile,
+    preferredTextZones: [...plan.preferredLayouts],
+    protectedTextZone: preferredTextZone,
+    preferredSubjectZone: subjectZone,
+    negativeSpaceCoverage,
+    needsNegativeSpace: plan.composition.protectionBoost >= 0.05 || ["hero_statement", "quote_thought", "emotional_story", "campaign_provocation"].includes(plan.archetypeKey),
+    dimensions: { ...spec.dimensions },
+    allowGenerated: true,
+    prohibitEmbeddedText: true,
+    prohibitLogos: true,
+    prohibitProtectedProducts: plan.archetypeKey === "product_hero",
+    conceptText: [spec.generative?.concept, stripRichMarkers(spec.copy.headline), spec.copy.subheading, plan.archetypeLabel].filter(Boolean).join(" "),
+    mood: resolveGenerativeMood(spec, plan),
+    visualStyle: resolveGenerativeStyle(spec, plan).key,
+    requiresHumanStory: ["emotional_story", "editorial_story"].includes(plan.archetypeKey),
+    prefersAbstractOrProcedural: ["quote_thought", "announcement", "campaign_provocation", "feature_stack"].includes(plan.archetypeKey)
+  };
+}
+
+function resolveCurrentAssets(spec, plan, layout = null) {
+  const provider = ASSET_PROVIDER_REGISTRY.get("current");
+  const background = provider.resolveBackground(spec);
+  const logo = provider.resolveLogo(spec);
+  return {
+    background,
+    logo,
+    request: buildAssetRequest(spec, plan, layout),
+    futureProviderReady: GENERATIVE_PROVIDER_REGISTRY.size > 0
+  };
+}
+
+function buildGenerativePrompt(spec, plan, assetRequest, { attempt = 1, feedback = "" } = {}) {
+  const mood = resolveGenerativeMood(spec, plan);
+  const style = resolveGenerativeStyle(spec, plan);
+  const headline = stripRichMarkers(spec.copy.headline);
+  const userConcept = spec.generative?.concept?.trim();
+  const concept = userConcept || `Create a visual metaphor or scene that supports the message: "${headline || plan.archetypeLabel}".`;
+  const profileText = assetRequest.profile === "story" ? "vertical 9:16" : assetRequest.profile === "square" ? "square 1:1" : "portrait 4:5";
+  const zoneLanguage = assetRequest.protectedTextZone === "center"
+    ? `Keep the central ${Math.round(assetRequest.negativeSpaceCoverage * 100)}% visually calm enough for large overlay typography; place the main visual interest toward ${assetRequest.preferredSubjectZone}.`
+    : assetRequest.protectedTextZone === "lower"
+      ? `Keep the lower ${Math.round(assetRequest.negativeSpaceCoverage * 100)}% visually calm and free of important objects for overlay typography; keep the main subject higher in the frame.`
+      : `Keep roughly the ${assetRequest.protectedTextZone} ${Math.round(assetRequest.negativeSpaceCoverage * 100)}% of the frame visually calm and relatively uncluttered for overlay typography; place the main visual interest primarily on the ${assetRequest.preferredSubjectZone}.`;
+
+  const productRule = assetRequest.prohibitProtectedProducts
+    ? "Do not invent, redraw or imitate any product package; leave a clean staging area because the authentic product pack will be composited later."
+    : "";
+  const retryRule = feedback ? `Correction from the previous attempt: ${feedback}` : "";
+
+  const positivePrompt = [
+    `${style.hint}.`,
+    `Creative archetype: ${plan.archetypeLabel}. ${ARCHETYPE_GENERATIVE_HINTS[plan.archetypeKey] || ARCHETYPE_GENERATIVE_HINTS.auto}.`,
+    `Visual concept: ${concept}`,
+    `Mood: ${mood}.`,
+    `Composition: ${profileText}, ${assetRequest.dimensions.width} × ${assetRequest.dimensions.height} target. ${zoneLanguage}`,
+    productRule,
+    retryRule,
+    "Create only the underlying visual asset/background. The final marketing copy and brand layers will be added separately by a deterministic renderer."
+  ].filter(Boolean).join(" ");
+
+  const negativePrompt = [
+    "no text", "no letters", "no typography", "no captions", "no logos", "no brand marks",
+    "no watermarks", "no UI elements", "no poster mockup text", "no readable signage",
+    assetRequest.prohibitProtectedProducts ? "no invented product packaging" : ""
+  ].filter(Boolean).join(", ");
+
+  return {
+    positivePrompt,
+    negativePrompt,
+    mood,
+    style: style.key,
+    attempt,
+    feedback
+  };
+}
+
+function buildGenerativeAssetRequest(spec, scene, { attempt = 1, feedback = "" } = {}) {
+  const plan = scene?.compositionPlan || createCompositionPlan(spec);
+  const layout = scene?.layout || (spec.preferences.layout === "auto" ? plan.preferredLayouts[0] : spec.preferences.layout);
+  const assetRequest = buildAssetRequest(spec, plan, layout);
+  const prompt = buildGenerativePrompt(spec, plan, assetRequest, { attempt, feedback });
+  return {
+    requestId: `yuj-gen-${Date.now()}-${++generationRequestCounter}`,
+    role: assetRequest.role,
+    archetype: assetRequest.archetype,
+    archetypeLabel: assetRequest.archetypeLabel,
+    width: assetRequest.dimensions.width,
+    height: assetRequest.dimensions.height,
+    profile: assetRequest.profile,
+    protectedTextZone: assetRequest.protectedTextZone,
+    preferredSubjectZone: assetRequest.preferredSubjectZone,
+    negativeSpaceCoverage: assetRequest.negativeSpaceCoverage,
+    prompt: prompt.positivePrompt,
+    negativePrompt: prompt.negativePrompt,
+    mood: prompt.mood,
+    style: prompt.style,
+    attempt,
+    seed: scene?.seed ?? Math.floor(Math.random() * 0xffffffff),
+    validationThreshold: spec.generative.validationThreshold,
+    metadata: {
+      brand: spec.copy.brand,
+      headline: stripRichMarkers(spec.copy.headline),
+      deterministicOverlayRequired: true,
+      prohibitEmbeddedText: true,
+      prohibitLogos: true,
+      prohibitProtectedProducts: assetRequest.prohibitProtectedProducts
+    }
+  };
+}
+
+function loadImageFromGenerationSource(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (!String(src).startsWith("data:") && !String(src).startsWith("blob:")) img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Generated image could not be loaded. Check the URL and CORS headers."));
+    img.src = src;
+  });
+}
+
+async function normalizeProviderImage(payload) {
+  if (payload?.image instanceof HTMLImageElement) return payload.image;
+  if (typeof payload?.image === "string") return loadImageFromGenerationSource(payload.image);
+  if (payload?.imageDataUrl) return loadImageFromGenerationSource(payload.imageDataUrl);
+  if (payload?.imageUrl) return loadImageFromGenerationSource(payload.imageUrl);
+  if (payload?.image_url) return loadImageFromGenerationSource(payload.image_url);
+  if (payload?.imageBase64) {
+    const mime = payload.mimeType || "image/png";
+    return loadImageFromGenerationSource(`data:${mime};base64,${payload.imageBase64}`);
+  }
+  throw new Error("Provider response must include imageUrl, imageDataUrl, imageBase64, or an Image object.");
+}
+
+function mockColorFromSeed(seed, offset = 0) {
+  const hue = ((seed % 360) + offset + 360) % 360;
+  return chroma.hsl(hue, 0.55, 0.35).hex();
+}
+
+async function generateMockVisualAsset(request) {
+  const c = document.createElement("canvas");
+  c.width = request.width;
+  c.height = request.height;
+  const x = c.getContext("2d");
+  const rng = seededRandom((request.seed + request.attempt * 7919) >>> 0);
+  const c1 = mockColorFromSeed(request.seed, 0);
+  const c2 = mockColorFromSeed(request.seed, 46);
+  const c3 = mockColorFromSeed(request.seed, 185);
+  const g = x.createLinearGradient(0, 0, c.width, c.height);
+  g.addColorStop(0, chroma(c1).darken(1.2).hex());
+  g.addColorStop(0.55, c2);
+  g.addColorStop(1, chroma(c3).darken(0.7).hex());
+  x.fillStyle = g;
+  x.fillRect(0, 0, c.width, c.height);
+
+  const subjectX = request.preferredSubjectZone === "left" ? c.width * 0.27 : request.preferredSubjectZone === "center" ? c.width * 0.52 : c.width * 0.76;
+  const subjectY = request.protectedTextZone === "lower" ? c.height * 0.30 : c.height * 0.48;
+  const glow = x.createRadialGradient(subjectX, subjectY, 20, subjectX, subjectY, c.width * 0.48);
+  glow.addColorStop(0, chroma(c2).brighten(1.8).alpha(0.78).css());
+  glow.addColorStop(0.45, chroma(c3).alpha(0.35).css());
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  x.fillStyle = glow;
+  x.fillRect(0, 0, c.width, c.height);
+
+  x.save();
+  x.translate(subjectX, subjectY);
+  x.rotate((rng() - 0.5) * 0.18);
+  x.fillStyle = chroma(c1).brighten(1.2).alpha(0.45).css();
+  x.beginPath();
+  x.ellipse(0, 0, c.width * 0.14, c.height * 0.24, 0, 0, Math.PI * 2);
+  x.fill();
+  x.restore();
+
+  x.save();
+  let veil;
+  if (request.protectedTextZone === "right") veil = x.createLinearGradient(c.width, 0, c.width * 0.45, 0);
+  else if (request.protectedTextZone === "lower") veil = x.createLinearGradient(0, c.height, 0, c.height * 0.52);
+  else if (request.protectedTextZone === "center") {
+    veil = x.createRadialGradient(c.width * 0.5, c.height * 0.5, 0, c.width * 0.5, c.height * 0.5, c.width * 0.55);
+  } else veil = x.createLinearGradient(0, 0, c.width * 0.55, 0);
+  veil.addColorStop(0, chroma(c1).darken(1.3).alpha(0.90).css());
+  veil.addColorStop(0.72, chroma(c1).darken(0.7).alpha(0.50).css());
+  veil.addColorStop(1, "rgba(0,0,0,0)");
+  x.fillStyle = veil;
+  x.fillRect(0, 0, c.width, c.height);
+  x.restore();
+
+  const imageDataUrl = c.toDataURL("image/png");
+  const image = await loadImageFromGenerationSource(imageDataUrl);
+  return { image, imageDataUrl, provider: "mock", providerMeta: { simulated: true } };
+}
+
+registerGenerativeProvider("mock", {
+  label: "Mock Generator",
+  async generate(request) {
+    return generateMockVisualAsset(request);
+  }
+});
+
+/* =========================================================
+   HUGGING FACE INFERENCE API PROVIDER
+========================================================= */
+
+/* =========================================================
+   FREE CLOUD DIFFUSION PROVIDER (POLLINATIONS)
+========================================================= */
+
+registerGenerativeProvider("hf_inference", {
+  label: "Free Cloud Diffusion (FLUX)",
+  async generate(request) {
+    // Truncate and clean prompt to prevent URL length limits and illegal chars
+    const baseText = String(request.prompt || "editorial aesthetic background")
+      .replace(/[\r\n]+/g, " ")
+      .slice(0, 240);
+      
+    const promptEncoded = encodeURIComponent(baseText);
+    const seed = request.seed || Math.floor(Math.random() * 100000);
+    const width = Math.min(request.width, 1024);
+    const height = Math.min(request.height, 1024);
+    
+    const url = `https://image.pollinations.ai/prompt/${promptEncoded}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+    
+const image = await loadImageFromGenerationSource(url);
+    return {
+      image,
+      provider: "pollinations/flux",
+      providerMeta: { seed }
+    };
+  }
+});
+   async function generateViaJsonEndpoint(request, config = {}, providerLabel = "backend") {
+  const endpoint = String(config.endpoint || "").trim();
+  if (!endpoint) throw new Error("Enter a generation endpoint first.");
+  const headers = { "Content-Type": "application/json" };
+  const token = String(config.token || "").trim();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      request_id: request.requestId,
+      prompt: request.prompt,
+      negative_prompt: request.negativePrompt,
+      width: request.width,
+      height: request.height,
+      seed: request.seed,
+      metadata: request.metadata
+    })
+  });
+  if (!response.ok) {
+    let detail = "";
+    try { detail = (await response.json())?.detail || ""; } catch (_) {}
+    throw new Error(`Generation endpoint returned HTTP ${response.status}${detail ? `: ${detail}` : ""}.`);
+  }
+  const payload = await response.json();
+  const image = await normalizeProviderImage(payload);
+  return { image, provider: providerLabel, providerMeta: payload.meta || payload.metadata || {}, raw: payload };
+}
+
+registerGenerativeProvider("colab_diffusers", {
+  label: "Google Colab • Hugging Face Diffusers",
+  async generate(request, config = {}) {
+    return generateViaJsonEndpoint(request, config, "colab-diffusers");
+  }
+});
+
+registerGenerativeProvider("backend", {
+  label: "Generic Backend Endpoint",
+  async generate(request, config = {}) {
+    return generateViaJsonEndpoint(request, config, "backend");
+  }
+});
+
+function normalizeZoneSafety(analysis, targetZone) {
+  if (!analysis?.zones?.[targetZone]) return 0;
+  const entries = Object.entries(analysis.zones).map(([key, value]) => ({ key, complexity: Number(value.score) || 0 }));
+  const min = Math.min(...entries.map(v => v.complexity));
+  const max = Math.max(...entries.map(v => v.complexity));
+  const target = entries.find(v => v.key === targetZone)?.complexity ?? max;
+  if (Math.abs(max - min) < 0.001) return 75;
+  const normalized = 100 - ((target - min) / (max - min)) * 100;
+  const safestBonus = analysis.safestTextZone === targetZone ? 8 : 0;
+  return Math.max(0, Math.min(100, normalized + safestBonus));
+}
+
+function validateGeneratedAsset(image, request) {
+  const analysis = analyzeImageZones(image);
+  const iw = image.naturalWidth || image.width || 0;
+  const ih = image.naturalHeight || image.height || 0;
+  const targetRatio = request.width / request.height;
+  const imageRatio = iw / Math.max(1, ih);
+  const ratioError = Math.abs(imageRatio - targetRatio) / targetRatio;
+  const aspectScore = Math.max(0, 100 - ratioError * 350);
+  const resolutionRatio = Math.min(iw / request.width, ih / request.height);
+  const resolutionScore = Math.max(0, Math.min(100, resolutionRatio * 100));
+  const negativeSpaceScore = normalizeZoneSafety(analysis, request.protectedTextZone);
+  const analyzabilityScore = analysis ? 100 : 0;
+  const safeRankScore = analysis?.safestTextZone === request.protectedTextZone ? 100 : negativeSpaceScore >= 65 ? 80 : 45;
+  const overall =
+    resolutionScore * 0.20 +
+    aspectScore * 0.15 +
+    negativeSpaceScore * 0.40 +
+    analyzabilityScore * 0.10 +
+    safeRankScore * 0.15;
+
+  const warnings = [];
+  if (!analysis) warnings.push("Image cannot be safely analysed; CORS or canvas access may be blocked");
+  if (resolutionScore < 70) warnings.push("Generated resolution is below the target working size");
+  if (aspectScore < 75) warnings.push("Generated aspect ratio differs too much from the target format");
+  if (negativeSpaceScore < 55) warnings.push(`${capitalize(request.protectedTextZone)} text-safe zone is too visually busy`);
+  if (analysis && analysis.safestTextZone !== request.protectedTextZone && negativeSpaceScore < 70) warnings.push(`Safest detected text zone is ${analysis.safestTextZone}, not ${request.protectedTextZone}`);
+
+  const threshold = Number(request.validationThreshold) || 75;
+  const pass = Boolean(analysis) && overall >= threshold;
+  return {
+    pass,
+    score: Math.round(overall * 10) / 10,
+    threshold,
+    warnings,
+    analysis,
+    metrics: {
+      resolution: resolutionScore,
+      aspect: aspectScore,
+      negativeSpace: negativeSpaceScore,
+      analyzability: analyzabilityScore,
+      safeZoneMatch: safeRankScore
+    },
+    dimensions: { width: iw, height: ih },
+    unverified: [
+      "Embedded text/logo exclusion is prompt-enforced; no OCR is used in this browser validator.",
+      "Exact human/product subject position is not machine-verified without segmentation."
+    ]
+  };
+}
+
+function buildGenerationRetryFeedback(validation, request) {
+  const feedback = [];
+  if (validation.metrics.negativeSpace < 55) feedback.push(`Make the ${request.protectedTextZone} text zone much simpler, with fewer edges, objects and contrast changes.`);
+  if (validation.metrics.aspect < 75) feedback.push(`Match the requested ${request.width} × ${request.height} aspect ratio more closely.`);
+  if (validation.metrics.resolution < 70) feedback.push("Return a higher-resolution image at or above the requested target dimensions.");
+  if (!validation.analysis) feedback.push("Return an export-safe image URL or data payload with CORS enabled so the image can be analysed and exported.");
+  return feedback.join(" ") || `Increase usable negative space in the ${request.protectedTextZone} zone while preserving the concept.`;
+}
+
+function updateGenerativePromptUI(request) {
+  lastGenerativeRequest = request;
+  if ($("genPromptPreview")) $("genPromptPreview").textContent = request.prompt;
+  if ($("genNegativePromptPreview")) $("genNegativePromptPreview").textContent = request.negativePrompt;
+}
+
+function updateGenerationValidationUI(validation, label = "") {
+  lastGenerationValidation = validation;
+  const status = $("genValidationStatus");
+  const breakdown = $("genValidationBreakdown");
+  if (status) {
+    if (!validation) {
+      status.className = "text-[10px] px-2.5 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 font-semibold";
+      status.textContent = "Generation pipeline: READY";
+    } else {
+      status.className = validation.pass
+        ? "text-[10px] px-2.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold"
+        : "text-[10px] px-2.5 py-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 font-semibold";
+      status.textContent = `${label || "Asset"}: ${validation.pass ? "ACCEPTED" : "REJECTED"} • ${Math.round(validation.score)}/100 • threshold ${validation.threshold}`;
+    }
+  }
+  if (breakdown) {
+    if (!validation) { breakdown.innerHTML = ""; return; }
+    const labels = { resolution: "Resolution", aspect: "Aspect", negativeSpace: "Negative space", analyzability: "Analyzability", safeZoneMatch: "Safe-zone match" };
+    breakdown.innerHTML = Object.entries(validation.metrics)
+      .map(([key, value]) => `<div>${labels[key]}</div><div class="text-right font-mono font-semibold text-slate-700">${Math.round(value)}</div>`)
+      .join("") +
+      (validation.warnings.length ? `<div class="col-span-2 pt-1 mt-1 border-t border-slate-100 text-rose-600">${escapeHtml(validation.warnings.join(" • "))}</div>` : "") +
+      `<div class="col-span-2 pt-1 mt-1 border-t border-slate-100 text-slate-400">${escapeHtml(validation.unverified.join(" "))}</div>`;
+  }
+}
+
+function applyAcceptedGeneratedAsset(result, request, validation) {
+  activeLoadedImage = result.image;
+  activeImageAnalysis = validation.analysis;
+  activeLibraryImageId = null;
+  activeImageSourceMeta = {
+    source: "generative",
+    id: request.requestId,
+    label: `Generated • ${result.provider || "provider"}`,
+    provider: result.provider || "unknown",
+    generationScore: validation.score,
+    prompt: request.prompt
+  };
+  $("uploadLabel").textContent = `Generated • ${result.provider || "provider"}`;
+  $("activeImageSourceLabel").textContent = `Generated: ${result.provider || "provider"} • ${Math.round(validation.score)}/100`;
+  $("clearImageBtn").classList.remove("hidden");
+  $("clearLibrarySelectBtn").classList.remove("hidden");
+  renderImageLibrary(activeLibraryCategory);
+  schedulePreviewRender();
+}
+
+async function runGenerativeAssetPipeline() {
+  if (generationInFlight) return;
+  generationInFlight = true;
+  const button = $("generateAssetBtn");
+  const originalLabel = button?.textContent;
+  if (button) { button.disabled = true; button.textContent = "Generating…"; }
+  setStatus("GENERATING…", "sky");
+
+  try {
+    const spec = collectCreativeSpec();
+    const providerName = spec.generative.provider;
+    const provider = GENERATIVE_PROVIDER_REGISTRY.get(providerName);
+    if (!provider) throw new Error(`Unknown generative provider: ${providerName}`);
+
+    const scene = resolveScene(spec, { regenerate: false });
+    let feedback = "";
+    let finalCandidate = null;
+
+    for (let attempt = 1; attempt <= spec.generative.maxAttempts; attempt++) {
+      const request = buildGenerativeAssetRequest(spec, scene, { attempt, feedback });
+      updateGenerativePromptUI(request);
+      setStatus(`GEN ${attempt}/${spec.generative.maxAttempts}`, "sky");
+
+      const result = await provider.generate(request, { endpoint: spec.generative.endpoint, token: spec.generative.token });
+      const validation = validateGeneratedAsset(result.image, request);
+      finalCandidate = { result, request, validation };
+      lastGeneratedAssetCandidate = finalCandidate;
+      updateGenerationValidationUI(validation, `Attempt ${attempt}`);
+
+      if (validation.pass) {
+        applyAcceptedGeneratedAsset(result, request, validation);
+        setStatus(`ASSET ACCEPTED ${Math.round(validation.score)}`, "green");
+        return finalCandidate;
+      }
+      feedback = buildGenerationRetryFeedback(validation, request);
+    }
+
+    setStatus("ASSET REJECTED", "amber");
+    return finalCandidate;
+  } catch (err) {
+    console.error("Generative pipeline error:", err);
+    updateGenerationValidationUI({
+      pass: false, score: 0, threshold: Number($("genValidationThreshold").value) || 75,
+      warnings: [err.message], analysis: null,
+      metrics: { resolution: 0, aspect: 0, negativeSpace: 0, analyzability: 0, safeZoneMatch: 0 },
+      unverified: []
+    }, "Generation error");
+    setStatus("GEN ERROR", "amber");
+    return null;
+  } finally {
+    generationInFlight = false;
+    if (button) { button.disabled = false; button.textContent = originalLabel || "Generate Asset"; }
+  }
+}
+
+function buildAndPreviewGenerativePrompt() {
+  const spec = collectCreativeSpec();
+  const scene = resolveScene(spec, { regenerate: false });
+  const request = buildGenerativeAssetRequest(spec, scene, { attempt: 1, feedback: "" });
+  updateGenerativePromptUI(request);
+  updateGenerationValidationUI(null);
+  setStatus("PROMPT READY", "green");
+  return request;
+}
+
+function validateCurrentBackgroundAgainstPrompt() {
+  if (!activeLoadedImage) {
+    updateGenerationValidationUI({
+      pass: false, score: 0, threshold: Number($("genValidationThreshold").value) || 75,
+      warnings: ["Select, upload or generate an image first."], analysis: null,
+      metrics: { resolution: 0, aspect: 0, negativeSpace: 0, analyzability: 0, safeZoneMatch: 0 },
+      unverified: []
+    }, "Current asset");
+    return null;
+  }
+  const request = buildAndPreviewGenerativePrompt();
+  const validation = validateGeneratedAsset(activeLoadedImage, request);
+  updateGenerationValidationUI(validation, "Current asset");
+  setStatus(validation.pass ? "ASSET VALID" : "ASSET WEAK", validation.pass ? "green" : "amber");
+  return validation;
+}
+
+function syncGenerativeProviderControls() {
+  const provider = $("genProviderSelect").value;
+  const wrap = $("genEndpointWrap");
+  const tokenWrap = $("genTokenWrap");
+  const label = $("genEndpointLabel");
+  const input = $("genEndpointInput");
+  const help = $("genHelpText");
+
+  if (provider === "mock" || provider === "hf_inference") {
+    // Hide token/endpoint inputs since generation is free and requires no key
+    wrap.classList.add("hidden");
+  } else if (provider === "hf_zerogpu") {
+    wrap.classList.remove("hidden");
+    tokenWrap.classList.add("hidden");
+    label.textContent = "Hugging Face Space ID";
+    input.placeholder = "username/my-image-engine";
+    help.textContent = "Enter your public Gradio Space ID (e.g. username/my-image-engine). No token required.";
+  } else {
+    wrap.classList.remove("hidden");
+    tokenWrap.classList.remove("hidden");
+    label.textContent = "Endpoint URL";
+    input.placeholder = "https://xxxx.ngrok-free.app/generate";
+    help.textContent = "Enter your live JSON inference endpoint URL.";
+  }
+}
+function updateAssetResolverStatus(scene) {
+  const el = $("assetResolverStatus");
+  if (!el || !scene?.assets) return;
+  const bg = scene.assets.background;
+  const logo = scene.assets.logo;
+  const generated = bg.source === "generative" && bg.generationScore != null ? ` • score ${Math.round(bg.generationScore)}` : "";
+  el.innerHTML = `Background: ${escapeHtml(bg.label)}${generated}<br>Logo: ${escapeHtml(logo.label)}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function collectCreativeSpec() {
+  return {
+    dimensions: { width: canvasW, height: canvasH, profile: getAspectProfile() },
+    creative: {
+      archetype: $("archetypeSelect").value
+    },
+    hybrid: getHybridConfigFromUI(),
+    generative: {
+      provider: $("genProviderSelect")?.value || "mock",
+      concept: $("genConceptInput")?.value.trim() || "",
+      mood: $("genMoodSelect")?.value || "auto",
+      style: $("genStyleSelect")?.value || "auto",
+      endpoint: $("genEndpointInput")?.value.trim() || "",
+      token: $("genEndpointToken")?.value || "",
+      validationThreshold: Number($("genValidationThreshold")?.value || 75),
+      maxAttempts: Math.max(1, Number($("genMaxAttempts")?.value || 3))
+    },
+    copy: {
+      brand: $("brandName").value.trim().toUpperCase(),
+      eyebrow: $("eyebrowInput").value.trim().toUpperCase(),
+      headline: $("headlineInput").value.trim(),
+      subheading: $("subheadingInput").value.trim(),
+      domain: $("domainInput").value.trim(),
+      tagline: $("taglineInput").value.trim(),
+      features: [$("feat1").value, $("feat2").value, $("feat3").value]
+    },
+    preferences: {
+      harmony: $("harmonyTypeSelect").value,
+      layout: $("layoutSelect").value,
+      focusMode: $("imageFocusSelect").value,
+      focalPoint: { x: Number($("focusX").value) / 100, y: Number($("focusY").value) / 100 },
+      zoom: Number($("imageZoom").value) / 100,
+      fadeStrength: Number($("fadeStrength").value) / 100,
+      lightBleed: Number($("lightBleed").value) / 100
+    },
+    locks: {
+      palette: $("lockPalette").checked,
+      fonts: $("lockFonts").checked,
+      layout: $("lockLayout").checked,
+      seed: $("lockSeed").checked
+    },
+    media: {
+      image: activeLoadedImage,
+      logo: activeLogoImage,
+      imageAnalysis: activeImageAnalysis,
+      imageSource: { ...activeImageSourceMeta },
+      logoSource: { ...activeLogoSourceMeta }
+    }
+  };
+}
+
+function createCompositionPlan(spec) {
+  const archetypeKey = spec.creative?.archetype || "auto";
+  const archetype = getArchetypeConfig(archetypeKey);
+  return {
+    archetypeKey,
+    archetypeLabel: archetype.label,
+    preferredLayouts: [...archetype.preferredLayouts],
+    headline: { ...archetype.headline },
+    body: { ...archetype.body },
+    features: { ...archetype.features },
+    composition: { ...archetype.composition },
+    logoZone: archetype.logoZone || "auto"
+  };
+}
+
+function deriveAutoLayout(spec, plan, rng) {
+  if (spec.preferences.layout !== "auto") return spec.preferences.layout;
+  let allowed = plan.preferredLayouts?.length ? [...plan.preferredLayouts] : [...LAYOUT_OPTIONS];
+
+  const activeFeatureCount = plan.features.mode === "none"
+    ? 0
+    : spec.copy.features.filter(v => v.trim()).slice(0, plan.features.maxItems).length;
+  if (spec.dimensions.profile === "square" && activeFeatureCount >= 2) {
+    allowed = allowed.filter(layout => layout !== "lower");
+  }
+  if (!allowed.length) allowed = ["left", "right", "center"];
+
+  const suggested = spec.media.imageAnalysis?.safestTextZone;
+  if (suggested && allowed.includes(suggested)) return suggested;
+  return randomItem(allowed, rng);
+}
+
+function deriveFocus(spec, layout) {
+  if (spec.preferences.focusMode === "manual") {
+    return {
+      x: Math.min(1, Math.max(0, spec.preferences.focalPoint.x)),
+      y: Math.min(1, Math.max(0, spec.preferences.focalPoint.y))
+    };
+  }
+  const x = layout === "left" ? 0.72 : layout === "right" ? 0.28 : 0.5;
+  const y = layout === "lower" ? 0.34 : 0.5;
+  return { x, y };
+}
+
+function resolveScene(spec, { regenerate = false, forcedSeed = null } = {}) {
+  const previous = currentDesign;
+  const normalizedForcedSeed = Number.isFinite(Number(forcedSeed)) ? (Number(forcedSeed) >>> 0) : null;
+  const seed = normalizedForcedSeed !== null
+    ? normalizedForcedSeed
+    : spec.locks.seed && previous
+      ? previous.seed
+      : (regenerate || !previous ? Math.floor(Math.random() * 0xffffffff) : previous.seed);
+  const rng = seededRandom(seed);
+  const model = spec.preferences.harmony;
+  const compositionPlan = createCompositionPlan(spec);
+
+  let palette;
+  if (spec.locks.palette && previous?.palette) {
+    palette = previous.palette;
+  } else if (!regenerate && previous?.palette) {
+    palette = previous.palette;
+  } else if (model === "preset") {
+    palette = LUMINOUS_PALETTES[randomItem(Object.keys(LUMINOUS_PALETTES), rng)];
+  } else {
+    palette = generateChromaPalette(model, rng);
+  }
+
+  const typePair = spec.locks.fonts && previous?.typePair
+    ? previous.typePair
+    : (!regenerate && previous?.typePair ? previous.typePair : randomItem(EDITORIAL_TYPE_PAIRINGS, rng));
+
+  const layout = spec.locks.layout && previous?.layout
+    ? previous.layout
+    : deriveAutoLayout(spec, compositionPlan, rng);
+
+  const assets = resolveCurrentAssets(spec, compositionPlan, layout);
+  const focalPoint = deriveFocus(spec, layout);
+  const bloomAnchor = layout === "right"
+    ? { x: 0.22, y: 0.24 }
+    : layout === "center"
+      ? { x: 0.80, y: 0.18 }
+      : { x: 0.78, y: 0.24 };
+
+  const protection = Math.min(0.96, Math.max(0.30, spec.preferences.fadeStrength + compositionPlan.composition.protectionBoost));
+
+  return {
+    seed,
+    moodKey: model,
+    palette,
+    typePair,
+    layout,
+    focalPoint,
+    zoom: spec.preferences.zoom,
+    effects: {
+      fadeStrength: protection,
+      lightBleed: spec.preferences.lightBleed,
+      bloomAnchor
+    },
+    dimensions: spec.dimensions,
+    creative: spec.creative,
+    hybrid: spec.hybrid,
+    generative: spec.generative,
+    compositionPlan,
+    copy: spec.copy,
+    assets,
+    media: {
+      ...spec.media,
+      image: assets.background.image,
+      logo: assets.logo.image,
+      imageAnalysis: assets.background.analysis
+    }
+  };
+}
+
+function generateNewCompositionState() {
+  const spec = collectCreativeSpec();
+  const scene = resolveScene(spec, { regenerate: true });
+  updatePaletteSwatches(scene.palette, spec.preferences.harmony === "preset" ? "Preset" : "Chroma.js");
+  return scene;
+}
+
+/* =========================================================
+   TEXT POSITION SHUFFLER (ISOLATED)
+========================================================= */
+
+function shuffleTextPositions() {
+  if (!currentDesign) currentDesign = generateNewCompositionState();
+  if ($("lockLayout").checked) {
+    setStatus("LAYOUT LOCKED", "amber");
+    return;
+  }
+  const rng = seededRandom((currentDesign.seed + 1) >>> 0);
+  const planLayouts = currentDesign.compositionPlan?.preferredLayouts?.length
+    ? currentDesign.compositionPlan.preferredLayouts
+    : LAYOUT_OPTIONS;
+  let available = planLayouts.filter(l => l !== currentDesign.layout);
+  if (!available.length) available = LAYOUT_OPTIONS.filter(l => l !== currentDesign.layout);
+  const newLayout = randomItem(available, rng);
+  currentDesign.layout = newLayout;
+  currentDesign.seed = (currentDesign.seed + 1) >>> 0;
+  const spec = collectCreativeSpec();
+  currentDesign.focalPoint = deriveFocus(spec, newLayout);
+  $("layoutSelect").value = newLayout;
+  setStatus(`LAYOUT: ${newLayout.toUpperCase()}`, "sky");
+  schedulePreviewRender();
+}
+
+function setStatus(text, type = "green") {
+  const badge = $("loadBadge");
+  badge.textContent = text;
+  const styles = {
+    green: "text-emerald-800 bg-emerald-100 border-emerald-300",
+    sky: "text-sky-700 bg-sky-100 border-sky-300",
+    amber: "text-amber-800 bg-amber-100 border-amber-300"
+  };
+  badge.className = "text-[10px] font-bold px-2 py-0.5 rounded border " + styles[type];
+}
+
+/* =========================================================
+   TEXT LAYOUT & CANVAS RENDERING
+========================================================= */
+
+function wrapText(ctx, text, maxWidth) {
+  const paragraphs = String(text ?? "").split(/\n/);
+  const lines = [];
+  paragraphs.forEach((paragraph, pIndex) => {
+    const words = paragraph.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) {
+      lines.push("");
+      return;
+    }
+    let line = "";
+    for (const word of words) {
+      const test = line ? line + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    if (pIndex < paragraphs.length - 1 && paragraph === "") lines.push("");
+  });
+  return lines;
+}
+
+function fitText(ctx, { text, box, fontFamily, weight = 500, maxSize, minSize, maxLines = 99, lineHeight = 1.3 }) {
+  const linesAreWidthSafe = lines => lines.every(line => ctx.measureText(line).width <= box.w + 0.5);
+
+  for (let size = maxSize; size >= minSize; size -= 1) {
+    ctx.font = `${weight} ${size}px ${fontFamily}`;
+    const lines = wrapText(ctx, text, box.w);
+    const height = lines.length * size * lineHeight;
+    const widthSafe = linesAreWidthSafe(lines);
+    if (lines.length <= maxLines && height <= box.h && widthSafe) {
+      return { size, lines, linePx: size * lineHeight, height, overflow: false, widthSafe: true };
+    }
+  }
+
+  ctx.font = `${weight} ${minSize}px ${fontFamily}`;
+  const allLines = wrapText(ctx, text, box.w);
+  const maxByHeight = Math.max(1, Math.floor(box.h / (minSize * lineHeight)));
+  const visibleCount = Math.min(maxLines, maxByHeight);
+  const visible = allLines.slice(0, visibleCount);
+  const widthSafe = visible.every(line => ctx.measureText(line).width <= box.w + 0.5);
+  const lineOverflow = allLines.length > visibleCount;
+
+  if (lineOverflow && visible.length) {
+    visible[visible.length - 1] = visible[visible.length - 1].replace(/[.…]*$/, "") + "…";
+  }
+
+  return {
+    size: minSize,
+    lines: visible,
+    linePx: minSize * lineHeight,
+    height: visible.length * minSize * lineHeight,
+    overflow: lineOverflow || !widthSafe,
+    widthSafe,
+    totalLines: allLines.length
+  };
+}
+
+function parseRichWords(text) {
+  const result = [];
+  const segments = String(text ?? "").split(/(\n)/);
+  for (const segment of segments) {
+    if (segment === "\n") {
+      result.push({ hardBreak: true });
+      continue;
+    }
+    const regex = /\[([^\]]+)\]|([^\s]+)/g;
+    let match;
+    while ((match = regex.exec(segment))) {
+      if (match[1]) match[1].split(/\s+/).filter(Boolean).forEach(word => result.push({ text: word, highlight: true }));
+      else result.push({ text: match[2], highlight: false });
+    }
+  }
+  return result;
+}
+
+function wrapRichWords(ctx, tokens, maxWidth) {
+  const lines = [];
+  let current = [];
+  let width = 0;
+  const spaceWidth = ctx.measureText(" ").width;
+  for (const token of tokens) {
+    if (token.hardBreak) {
+      lines.push(current);
+      current = [];
+      width = 0;
+      continue;
+    }
+    const tokenWidth = ctx.measureText(token.text).width;
+    const extra = current.length ? spaceWidth + tokenWidth : tokenWidth;
+    if (current.length && width + extra > maxWidth) {
+      lines.push(current);
+      current = [token];
+      width = tokenWidth;
+    } else {
+      current.push(token);
+      width += extra;
+    }
+  }
+  if (current.length || !lines.length) lines.push(current);
+  return lines;
+}
+
+function measureRichLineWidth(ctx, line) {
+  const spaceWidth = ctx.measureText(" ").width;
+  return line.reduce((width, token, index) => width + (index ? spaceWidth : 0) + ctx.measureText(token.text || "").width, 0);
+}
+
+function fitRichHeadline(ctx, text, box, fontFamily, options = {}) {
+  const tokens = parseRichWords(text);
+  const scale = options.scale ?? 1;
+  const maxLines = options.maxLines ?? 5;
+  const max = Math.round(canvasW * 0.083 * scale);
+  const min = Math.max(Math.round(canvasW * 0.030), Math.round(canvasW * 0.036 * Math.min(1, scale)));
+
+  for (let size = max; size >= min; size -= 2) {
+    ctx.font = "800 " + size + "px " + fontFamily;
+    const lines = wrapRichWords(ctx, tokens, box.w);
+    const linePx = size * 1.13;
+    const widthSafe = lines.every(line => measureRichLineWidth(ctx, line) <= box.w + 0.5);
+    if (lines.length <= maxLines && lines.length * linePx <= box.h && widthSafe) {
+      return { size, lines, linePx, overflow: false, widthSafe: true };
+    }
+  }
+
+  ctx.font = "800 " + min + "px " + fontFamily;
+  const allLines = wrapRichWords(ctx, tokens, box.w);
+  const maxByHeight = Math.max(1, Math.min(maxLines, Math.floor(box.h / (min * 1.13))));
+  const visible = allLines.slice(0, maxByHeight);
+  const widthSafe = visible.every(line => measureRichLineWidth(ctx, line) <= box.w + 0.5);
+  return {
+    size: min,
+    lines: visible,
+    linePx: min * 1.13,
+    overflow: allLines.length > visible.length || !widthSafe,
+    widthSafe,
+    totalLines: allLines.length
+  };
+}
+
+function drawRichHeadline(ctx, text, box, palette, fontFamily, align, options = {}) {
+  const fit = fitRichHeadline(ctx, text, box, fontFamily, options);
+  ctx.font = "800 " + fit.size + "px " + fontFamily;
+  ctx.textBaseline = "top";
+
+  const spaceWidth = ctx.measureText(" ").width;
+  const gradient = ctx.createLinearGradient(box.x, 0, box.x + box.w, 0);
+  gradient.addColorStop(0, palette.highlightGrad[0]);
+  gradient.addColorStop(0.5, "#ffffff");
+  gradient.addColorStop(1, palette.highlightGrad[2]);
+
+  let y = box.y;
+  for (const line of fit.lines) {
+    const lineWidth = measureRichLineWidth(ctx, line);
+    let x = align === "center" ? box.x + (box.w - lineWidth) / 2 :
+            align === "right" ? box.x + box.w - lineWidth : box.x;
+
+    for (let i = 0; i < line.length; i++) {
+      const token = line[i];
+      if (i > 0) x += spaceWidth;
+      ctx.save();
+      ctx.fillStyle = token.highlight ? gradient : palette.headlineColor;
+      ctx.shadowColor = token.highlight ? chroma(palette.accentPill).alpha(0.6).css() : "rgba(0,0,0,.65)";
+      ctx.shadowBlur = token.highlight ? 18 : 8;
+      ctx.fillText(token.text, x, y);
+      ctx.restore();
+      x += ctx.measureText(token.text).width;
+    }
+    y += fit.linePx;
+  }
+  return { y, overflow: fit.overflow, box: { x: box.x, y: box.y, w: box.w, h: Math.max(0, y - box.y) } };
+}
+
+function drawProceduralScene(ctx, palette) {
+  const gradient = ctx.createLinearGradient(0, 0, canvasW, canvasH);
+  gradient.addColorStop(0, palette.base);
+  gradient.addColorStop(0.55, chroma(palette.base).darken(1.2).hex());
+  gradient.addColorStop(1, "#050505");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+
+  const sun = ctx.createRadialGradient(
+    canvasW * 0.78, canvasH * 0.24, 10,
+    canvasW * 0.78, canvasH * 0.24, canvasW * 0.75
+  );
+  sun.addColorStop(0, `rgba(${palette.sunColorRgb.join(",")},.6)`);
+  sun.addColorStop(0.4, `rgba(${palette.tintRgb.join(",")},.22)`);
+  sun.addColorStop(1, "rgba(0,0,0,0)");
+
+  ctx.fillStyle = sun;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+}
+
+function drawCoverImage(ctx, image, focalPoint = { x: 0.5, y: 0.5 }, zoom = 1) {
+  const imageRatio = image.width / image.height;
+  const canvasRatio = canvasW / canvasH;
+  let width, height;
+  if (canvasRatio > imageRatio) {
+    width = canvasW * zoom;
+    height = width / imageRatio;
+  } else {
+    height = canvasH * zoom;
+    width = height * imageRatio;
+  }
+  const overflowX = Math.max(0, width - canvasW);
+  const overflowY = Math.max(0, height - canvasH);
+  const x = -overflowX * Math.min(1, Math.max(0, focalPoint.x));
+  const y = -overflowY * Math.min(1, Math.max(0, focalPoint.y));
+  ctx.drawImage(image, x, y, width, height);
+}
+
+function drawBackground(ctx, scene) {
+  const palette = scene.palette;
+  if (scene.media.image) drawCoverImage(ctx, scene.media.image, scene.focalPoint, scene.zoom);
+  else drawProceduralScene(ctx, palette);
+
+  ctx.save();
+  ctx.globalCompositeOperation = "soft-light";
+  const tint = ctx.createLinearGradient(0, 0, canvasW, canvasH);
+  tint.addColorStop(0, palette.base);
+  tint.addColorStop(0.5, `rgb(${palette.tintRgb.join(",")})`);
+  tint.addColorStop(1, palette.base);
+  ctx.fillStyle = tint;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+  ctx.restore();
+}
+
+function drawContentProtection(ctx, scene) {
+  const palette = scene.palette;
+  const strength = scene.effects.fadeStrength;
+  let gradient;
+  if (scene.layout === "right") gradient = ctx.createLinearGradient(canvasW, 0, 0, 0);
+  else if (scene.layout === "center") gradient = ctx.createRadialGradient(canvasW / 2, canvasH / 2, canvasW * 0.05, canvasW / 2, canvasH / 2, canvasW * 0.75);
+  else if (scene.layout === "lower") gradient = ctx.createLinearGradient(0, canvasH, 0, canvasH * 0.25);
+  else gradient = ctx.createLinearGradient(0, 0, canvasW, 0);
+
+  gradient.addColorStop(0, chroma(palette.base).alpha(0.96).css());
+  gradient.addColorStop(0.48, chroma(palette.base).alpha(0.82 * strength).css());
+  gradient.addColorStop(0.78, chroma(palette.base).alpha(0.28 * strength).css());
+  gradient.addColorStop(1, chroma(palette.base).alpha(0.02).css());
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+}
+
+function drawLightBloom(ctx, scene) {
+  const { palette } = scene;
+  const strength = scene.effects.lightBleed;
+  const a = scene.effects.bloomAnchor;
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const bloom = ctx.createRadialGradient(
+    canvasW * a.x, canvasH * a.y, 20,
+    canvasW * a.x, canvasH * a.y, canvasW * 0.7
+  );
+  bloom.addColorStop(0, `rgba(${palette.sunColorRgb.join(",")},${0.42 * strength})`);
+  bloom.addColorStop(0.45, `rgba(${palette.tintRgb.join(",")},${0.18 * strength})`);
+  bloom.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = bloom;
+  ctx.fillRect(0, 0, canvasW, canvasH);
+  ctx.restore();
+}
+
+function drawGrain(ctx, seed) {
+  const rng = seededRandom(seed);
+  const count = Math.round(canvasW * canvasH / 900);
+  ctx.save();
+  for (let i = 0; i < count; i++) {
+    const x = rng() * canvasW;
+    const y = rng() * canvasH;
+    const alpha = 0.015 + rng() * 0.035;
+    const size = 0.5 + rng() * 1.6;
+    ctx.fillStyle = rng() > 0.5 ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`;
+    ctx.fillRect(x, y, size, size);
+  }
+  ctx.restore();
+}
+
+function drawBrandSeal(ctx, cx, cy, radius, palette, brand, tagline) {
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.45)";
+  ctx.shadowBlur = 20;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius - 3, 0, Math.PI * 2);
+  ctx.clip();
+
+  const disc = ctx.createRadialGradient(cx - radius * 0.2, cy - radius * 0.2, 5, cx, cy, radius);
+  disc.addColorStop(0, palette.highlightGrad[1]);
+  disc.addColorStop(0.55, palette.highlightGrad[2]);
+  disc.addColorStop(1, palette.base);
+
+  ctx.fillStyle = disc;
+  ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+
+  const shortBrand = brand.split(/\s+/).slice(0, 1).join("").slice(0, 10);
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `800 ${radius * 0.3}px 'Syne', sans-serif`;
+  ctx.fillText(shortBrand, cx, cy - radius * 0.08);
+
+  ctx.font = `600 ${radius * 0.12}px 'Plus Jakarta Sans', sans-serif`;
+  const secondLine = brand.split(/\s+/).slice(1).join(" ").slice(0, 18);
+  if (secondLine) ctx.fillText(secondLine, cx, cy + radius * 0.18);
+
+  if (tagline) {
+    ctx.font = `italic 700 ${radius * 0.13}px 'Cormorant Garamond', serif`;
+    ctx.fillText(tagline.slice(0, 22), cx, cy + radius * 0.43);
+  }
+  ctx.restore();
+
+  ctx.save();
+  const ring = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
+  ring.addColorStop(0, palette.highlightGrad[0]);
+  ring.addColorStop(0.5, "#ffffff");
+  ring.addColorStop(1, palette.highlightGrad[2]);
+  ctx.strokeStyle = ring;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBrandLogo(ctx, image, x, y, maxW, maxH, align = "left") {
+  if (!image) return;
+  const ratio = image.width / image.height;
+  let w = maxW, h = w / ratio;
+  if (h > maxH) { h = maxH; w = h * ratio; }
+  const dx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.28)";
+  ctx.shadowBlur = 12;
+  ctx.drawImage(image, dx, y, w, h);
+  ctx.restore();
+  return { x: dx, y, w, h };
+}
+
+function getLayoutGeometry(layout, profile = getAspectProfile(), plan = null) {
+  const pad = canvasW * (profile === "story" ? 0.065 : 0.075);
+  const cfg = {
+    square:   { sideW: 0.56, centerW: 0.74, lowerW: 0.78, sideY: 0.19, centerY: 0.22, lowerY: 0.48 },
+    portrait: { sideW: 0.57, centerW: 0.72, lowerW: 0.75, sideY: 0.20, centerY: 0.22, lowerY: 0.43 },
+    story:    { sideW: 0.68, centerW: 0.82, lowerW: 0.82, sideY: 0.16, centerY: 0.18, lowerY: 0.50 }
+  }[profile];
+
+  const widthScale = plan?.composition?.widthScale ?? 1;
+  const yOffset = plan?.composition?.startYOffset ?? 0;
+  const clampW = value => Math.min(0.86, Math.max(0.42, value * widthScale));
+  const sideW = clampW(cfg.sideW);
+  const centerW = clampW(cfg.centerW);
+  const lowerW = clampW(cfg.lowerW);
+
+  if (layout === "right") {
+    return { align: "right", contentX: canvasW - pad - canvasW * sideW, contentWidth: canvasW * sideW, brandX: canvasW - pad, startY: canvasH * (cfg.sideY + yOffset), pad };
+  }
+  if (layout === "center") {
+    return { align: "center", contentX: canvasW * ((1 - centerW) / 2), contentWidth: canvasW * centerW, brandX: canvasW / 2, startY: canvasH * (cfg.centerY + yOffset), pad };
+  }
+  if (layout === "lower") {
+    return { align: "left", contentX: pad, contentWidth: canvasW * lowerW, brandX: pad, startY: canvasH * (cfg.lowerY + yOffset), pad };
+  }
+  return { align: "left", contentX: pad, contentWidth: canvasW * sideW, brandX: pad, startY: canvasH * (cfg.sideY + yOffset), pad };
+}
+
+function getLogoGeometry(layout, profile, plan, geometry) {
+  const pad = geometry.pad;
+  const maxW = canvasW * (layout === "center" ? 0.10 : 0.13);
+  const maxH = canvasH * 0.075;
+  const explicit = plan?.logoZone;
+
+  if (explicit === "top-right") return { x: canvasW - pad, y: pad, maxW, maxH, align: "right" };
+  if (explicit === "top-left") return { x: pad, y: pad, maxW, maxH, align: "left" };
+  if (explicit === "top-center") return { x: canvasW / 2, y: pad, maxW, maxH, align: "center" };
+
+  if (layout === "right") return { x: pad, y: pad, maxW, maxH, align: "left" };
+  return { x: canvasW - pad, y: pad, maxW, maxH, align: "right" };
+}
+
+function boxesIntersect(a, b, padding = 0) {
+  if (!a || !b) return false;
+  return !(a.x + a.w + padding <= b.x || b.x + b.w + padding <= a.x || a.y + a.h + padding <= b.y || b.y + b.h + padding <= a.y);
+}
+
+function drawFittedSimpleText(ctx, { text, box, fontFamily, weight, maxSize, minSize, color, align = "left", maxLines = 3, lineHeight = 1.35 }) {
+  if (!text) return { y: box.y, overflow: false };
+  const fit = fitText(ctx, { text, box, fontFamily, weight, maxSize, minSize, maxLines, lineHeight });
+  ctx.save();
+  ctx.font = `${weight} ${fit.size}px ${fontFamily}`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = "top";
+  ctx.textAlign = align;
+  const x = align === "center" ? box.x + box.w / 2 : align === "right" ? box.x + box.w : box.x;
+  let y = box.y;
+  fit.lines.forEach(line => { ctx.fillText(line, x, y); y += fit.linePx; });
+  ctx.restore();
+  return { y, overflow: fit.overflow, box: { x: box.x, y: box.y, w: box.w, h: Math.max(0, y - box.y) } };
+}
+
+function getFeatureMetrics(featureCount) {
+  const featureHeight = canvasH * 0.061;
+  return { featureHeight, requiredHeight: featureCount * featureHeight };
+}
+
+function drawFeatures(ctx, features, x, y, width, palette, fontFamily, align, maxItems = 3) {
+  let overflow = false;
+  const activeFeatures = features.filter(feature => feature.trim()).slice(0, maxItems);
+  const startY = y;
+  const badgeRadius = canvasW * 0.0115;
+  const textGap = canvasW * 0.035;
+  const { featureHeight } = getFeatureMetrics(activeFeatures.length);
+
+  activeFeatures.forEach((feature, index) => {
+    let title = feature;
+    let description = "";
+    const separator = feature.indexOf(":");
+    if (separator !== -1) {
+      title = feature.slice(0, separator);
+      description = feature.slice(separator + 1);
+    }
+
+    const badgeY = y + badgeRadius;
+    const badgeX = align === "right" ? x + width - badgeRadius : x + badgeRadius;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(badgeX, badgeY, badgeRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,.13)";
+    ctx.fill();
+    ctx.strokeStyle = palette.accentPill;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = palette.highlightGrad[0];
+    ctx.font = `700 ${canvasW * 0.011}px 'Plus Jakarta Sans'`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(index + 1), badgeX, badgeY);
+    ctx.restore();
+
+    const textX = align === "right" ? x : x + textGap;
+    const textWidth = width - textGap;
+
+    const titleResult = drawFittedSimpleText(ctx, {
+      text: title.trim(),
+      box: { x: textX, y, w: textWidth, h: featureHeight * 0.48 },
+      fontFamily,
+      weight: 700,
+      maxSize: canvasW * 0.023,
+      minSize: canvasW * 0.014,
+      color: "#ffffff",
+      align,
+      maxLines: 2,
+      lineHeight: 1.15
+    });
+
+    if (description.trim()) {
+      const descResult = drawFittedSimpleText(ctx, {
+        text: description.trim(),
+        box: { x: textX, y: titleResult.y + 3, w: textWidth, h: featureHeight * 0.46 },
+        fontFamily,
+        weight: 400,
+        maxSize: canvasW * 0.018,
+        minSize: canvasW * 0.012,
+        color: palette.textMuted,
+        align,
+        maxLines: 2,
+        lineHeight: 1.2
+      });
+      overflow = overflow || descResult.overflow;
+    }
+    overflow = overflow || titleResult.overflow;
+    y += featureHeight;
+  });
+
+  return {
+    y,
+    overflow,
+    count: activeFeatures.length,
+    box: { x, y: startY, w: width, h: Math.max(0, y - startY) }
+  };
+}
+
+/* =========================================================
+   COMPOSITION SCORING & AUTOMATIC RELAYOUT
+========================================================= */
+
+function scoreZoneForLayout(scene, layout) {
+  const analysis = scene.media.imageAnalysis;
+  if (!analysis?.zones) return { score: 90, rank: 0, raw: 0 };
+  const entries = Object.entries(analysis.zones)
+    .map(([key, value]) => ({ key, raw: Number(value.score) || 0 }))
+    .sort((a, b) => a.raw - b.raw);
+  const index = Math.max(0, entries.findIndex(v => v.key === layout));
+  const rankScores = [100, 85, 65, 45];
+  return {
+    score: rankScores[Math.min(index, rankScores.length - 1)],
+    rank: index,
+    raw: analysis.zones[layout]?.score || 0
+  };
+}
+
+function estimateImageQuality(scene) {
+  const image = scene.media.image;
+  if (!image) return 100;
+  const requiredScale = Math.max(canvasW / Math.max(1, image.width), canvasH / Math.max(1, image.height));
+  if (requiredScale <= 1) return 100;
+  if (requiredScale <= 1.15) return 90;
+  if (requiredScale <= 1.35) return 75;
+  if (requiredScale <= 1.6) return 55;
+  return 35;
+}
+
+function computeCompositionScore(scene, report) {
+  const warningText = report.warnings.join(" | ").toLowerCase();
+
+  let textFit = 100;
+  if (warningText.includes("headline")) textFit -= 40;
+  if (warningText.includes("supporting copy")) textFit -= 25;
+  if (warningText.includes("takeaway") && warningText.includes("width/height")) textFit -= 20;
+  if (warningText.includes("brand name")) textFit -= 15;
+  if (warningText.includes("eyebrow")) textFit -= 10;
+  if (warningText.includes("website/domain")) textFit -= 15;
+  textFit = Math.max(0, textFit);
+
+  let collisionSafety = 100;
+  if (warningText.includes("logo overlaps")) collisionSafety -= 60;
+  if (warningText.includes("collide") || warningText.includes("collision")) collisionSafety -= 55;
+  collisionSafety = Math.max(0, collisionSafety);
+
+  const zone = scoreZoneForLayout(scene, scene.layout);
+  const overlayBonus = Math.round(Math.min(18, Math.max(0, (scene.effects.fadeStrength - 0.3) * 25)));
+  const contrast = scene.media.image ? Math.min(100, zone.score + overlayBonus) : 96;
+
+  let brandCompliance = 100;
+  if (warningText.includes("logo overlaps")) brandCompliance -= 50;
+  if (warningText.includes("brand name")) brandCompliance -= 25;
+  if (warningText.includes("website/domain")) brandCompliance -= 25;
+  brandCompliance = Math.max(0, brandCompliance);
+
+  const plan = scene.compositionPlan;
+  let visualBalance = plan.preferredLayouts.includes(scene.layout) ? 92 : 65;
+  if (scene.media.imageAnalysis?.safestTextZone === scene.layout) visualBalance += 8;
+  const activeFeatureCount = plan.features.mode === "none" ? 0 : scene.copy.features.filter(Boolean).slice(0, plan.features.maxItems).length;
+  if (scene.dimensions.profile === "square" && scene.layout === "lower" && activeFeatureCount >= 2) visualBalance -= 20;
+  visualBalance = Math.max(0, Math.min(100, visualBalance));
+
+  const negativeSpace = scene.media.image ? zone.score : 92;
+  const imageQuality = estimateImageQuality(scene);
+
+  const metrics = { textFit, collisionSafety, contrast, brandCompliance, visualBalance, negativeSpace, imageQuality };
+  let total = 0;
+  Object.entries(SCORE_WEIGHTS).forEach(([key, weight]) => {
+    total += (metrics[key] / 100) * weight;
+  });
+  total = Math.round(total * 10) / 10;
+
+  let grade = total >= 90 ? "EXCELLENT" : total >= 80 ? "ACCEPT" : total >= 70 ? "RELAYOUT" : "REJECT";
+  if (!report.ok && grade !== "REJECT") grade = "BLOCKED";
+
+  return { total, grade, metrics, weights: SCORE_WEIGHTS, layout: scene.layout, pass: report.ok };
+}
+
+function bloomAnchorForLayout(layout) {
+  return layout === "right"
+    ? { x: 0.22, y: 0.24 }
+    : layout === "center"
+      ? { x: 0.80, y: 0.18 }
+      : layout === "lower"
+        ? { x: 0.76, y: 0.18 }
+        : { x: 0.78, y: 0.24 };
+}
+
+function createLayoutCandidateScene(baseScene, spec, layout) {
+  return {
+    ...baseScene,
+    layout,
+    focalPoint: deriveFocus(spec, layout),
+    effects: {
+      ...baseScene.effects,
+      bloomAnchor: bloomAnchorForLayout(layout)
+    }
+  };
+}
+
+function evaluateSceneCandidate(scene) {
+  const c = document.createElement("canvas");
+  c.width = canvasW;
+  c.height = canvasH;
+  const ctx = c.getContext("2d", { alpha: false });
+  const report = renderLogicalCanvas(ctx, scene);
+  const score = computeCompositionScore(scene, report);
+  return { scene, report, score };
+}
+
+function getCandidateLayouts(spec, baseScene) {
+  if (spec.locks.layout || spec.preferences.layout !== "auto") return [baseScene.layout];
+  const preferred = baseScene.compositionPlan?.preferredLayouts || LAYOUT_OPTIONS;
+  const unique = [...new Set([...preferred, ...LAYOUT_OPTIONS])];
+  return unique.filter(layout => LAYOUT_OPTIONS.includes(layout));
+}
+
+function rankCompositionCandidates(spec, baseScene) {
+  return getCandidateLayouts(spec, baseScene)
+    .map(layout => evaluateSceneCandidate(createLayoutCandidateScene(baseScene, spec, layout)))
+    .sort((a, b) => {
+      if (a.report.ok !== b.report.ok) return a.report.ok ? -1 : 1;
+      return b.score.total - a.score.total;
+    });
+}
+
+function chooseBestComposition(spec, baseScene) {
+  const candidates = rankCompositionCandidates(spec, baseScene);
+  return { best: candidates[0] || evaluateSceneCandidate(baseScene), candidates };
+}
+
+function updateScoreUI(score, candidates = null) {
+  if (!score) return;
+  lastCompositionScore = score;
+  const value = $("compositionScore");
+  const grade = $("compositionGrade");
+  const breakdown = $("scoreBreakdown");
+  if (value) value.textContent = Math.round(score.total);
+  if (grade) {
+    grade.textContent = `${score.grade} • ${capitalize(score.layout)}`;
+    grade.className = "text-[9px] font-bold " + (
+      score.grade === "EXCELLENT" ? "text-emerald-700" :
+      score.grade === "ACCEPT" ? "text-sky-700" :
+      score.grade === "RELAYOUT" ? "text-amber-700" : "text-rose-700"
+    );
+  }
+  if (breakdown) {
+    const labels = {
+      textFit: "Text fit",
+      collisionSafety: "Collisions",
+      contrast: "Contrast",
+      brandCompliance: "Brand",
+      visualBalance: "Balance",
+      negativeSpace: "Negative space",
+      imageQuality: "Image quality"
+    };
+    breakdown.innerHTML = Object.entries(score.metrics)
+      .map(([key, val]) => `<div>${labels[key]}</div><div class="text-right font-mono font-semibold text-slate-700">${Math.round(val)}</div>`)
+      .join("") +
+      (candidates?.length ? `<div class="col-span-2 pt-1 mt-1 border-t border-slate-100 text-slate-400">Candidates: ${candidates.slice(0, 4).map(c => `${capitalize(c.scene.layout)}${Math.round(c.score.total)}`).join(" • ")}</div>` : "");
+  }
+}
+
+function optimizeCurrentComposition({ announce = true } = {}) {
+  const spec = collectCreativeSpec();
+  if (spec.locks.layout || spec.preferences.layout !== "auto") {
+    const evaluation = evaluateSceneCandidate(resolveScene(spec, { regenerate: false }));
+    currentDesign = evaluation.scene;
+    updateScoreUI(evaluation.score, [evaluation]);
+    if (announce) setStatus("LAYOUT FIXED", "amber");
+    schedulePreviewRender();
+    return evaluation;
+  }
+  const base = resolveScene(spec, { regenerate: false });
+  const ranked = chooseBestComposition(spec, base);
+  currentDesign = ranked.best.scene;
+  $("layoutSelect").value = ranked.best.scene.layout;
+  updateScoreUI(ranked.best.score, ranked.candidates);
+  if (announce) setStatus(`BEST: ${ranked.best.scene.layout.toUpperCase()} ${Math.round(ranked.best.score.total)}`, "green");
+  schedulePreviewRender();
+  return ranked.best;
+}
+
+function renderLogicalCanvas(ctx, scene = currentDesign) {
+  if (!scene) scene = resolveScene(collectCreativeSpec(), { regenerate: true });
+  const design = scene;
+  const palette = design.palette;
+  const plan = design.compositionPlan || createCompositionPlan({ creative: { archetype: "auto" } });
+  const report = { ok: true, warnings: [], severity: "PASS" };
+  ctx.clearRect(0, 0, canvasW, canvasH);
+
+  drawBackground(ctx, design);
+  drawContentProtection(ctx, design);
+  drawLightBloom(ctx, design);
+  drawGrain(ctx, design.seed);
+
+  const { brand, eyebrow, headline, subheading, domain, tagline, features } = design.copy;
+  const geometry = getLayoutGeometry(design.layout, design.dimensions.profile, plan);
+  const { align, contentX, contentWidth, startY, pad } = geometry;
+  const brandBox = design.layout === "center"
+    ? { x: canvasW * 0.22, y: pad, w: canvasW * 0.56, h: canvasH * 0.04 }
+    : design.layout === "right"
+      ? { x: canvasW * 0.30, y: pad, w: canvasW * 0.625, h: canvasH * 0.04 }
+      : { x: pad, y: pad, w: canvasW * 0.62, h: canvasH * 0.04 };
+
+  const brandResult = drawFittedSimpleText(ctx, {
+    text: brand,
+    box: brandBox,
+    fontFamily: "'Cinzel Decorative', serif",
+    weight: 800,
+    maxSize: canvasW * 0.024,
+    minSize: canvasW * 0.013,
+    color: palette.highlightGrad[0],
+    align,
+    maxLines: 1
+  });
+  if (brandResult.overflow) report.warnings.push("Brand name exceeds its safe width");
+
+  let eyebrowResult = null;
+  if (eyebrow) {
+    eyebrowResult = drawFittedSimpleText(ctx, {
+      text: eyebrow,
+      box: { x: brandBox.x, y: pad + canvasH * 0.037, w: contentWidth, h: canvasH * 0.025 },
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      weight: 700,
+      maxSize: canvasW * 0.015,
+      minSize: canvasW * 0.009,
+      color: palette.textMuted,
+      align,
+      maxLines: 1
+    });
+    if (eyebrowResult.overflow) report.warnings.push("Campaign/eyebrow text exceeds its safe width");
+  }
+
+  const logoGeometry = getLogoGeometry(design.layout, design.dimensions.profile, plan, geometry);
+  let logoBox;
+  if (design.media.logo) {
+    logoBox = drawBrandLogo(ctx, design.media.logo, logoGeometry.x, logoGeometry.y, logoGeometry.maxW, logoGeometry.maxH, logoGeometry.align);
+  } else {
+    const sealRadius = canvasW * (design.layout === "center" ? 0.043 : 0.052);
+    const sealX = logoGeometry.align === "right"
+      ? logoGeometry.x - sealRadius
+      : logoGeometry.align === "center" ? logoGeometry.x : logoGeometry.x + sealRadius;
+    const sealY = logoGeometry.y + sealRadius;
+    drawBrandSeal(ctx, sealX, sealY, sealRadius, palette, brand, tagline);
+    logoBox = { x: sealX - sealRadius, y: sealY - sealRadius, w: sealRadius * 2, h: sealRadius * 2 };
+  }
+
+  const topCopyBox = {
+    x: brandBox.x,
+    y: brandBox.y,
+    w: brandBox.w,
+    h: (eyebrowResult?.y || brandResult.y) - brandBox.y + canvasH * 0.01
+  };
+  if (boxesIntersect(logoBox, topCopyBox, canvasW * 0.01)) {
+    report.warnings.push("Logo overlaps the brand header");
+  }
+
+  const headlineBox = {
+    x: contentX,
+    y: startY,
+    w: contentWidth,
+    h: canvasH * plan.headline.height
+  };
+  const headlineResult = drawRichHeadline(
+    ctx,
+    headline,
+    headlineBox,
+    palette,
+    design.typePair.headline,
+    align,
+    { scale: plan.headline.scale, maxLines: plan.headline.maxLines }
+  );
+  if (headlineResult.overflow) report.warnings.push("Headline exceeds the archetype safe area");
+  let currentY = headlineResult.y + canvasH * 0.018;
+
+  const bodyBox = {
+    x: contentX,
+    y: currentY,
+    w: contentWidth,
+    h: canvasH * plan.body.height
+  };
+  const subResult = drawFittedSimpleText(ctx, {
+    text: subheading,
+    box: bodyBox,
+    fontFamily: design.typePair.body,
+    weight: 500,
+    maxSize: canvasW * 0.024 * plan.body.scale,
+    minSize: canvasW * 0.012,
+    color: palette.textMuted,
+    align,
+    maxLines: plan.body.maxLines,
+    lineHeight: 1.42
+  });
+  if (subResult.overflow) report.warnings.push("Supporting copy exceeds the archetype safe area");
+  currentY = subResult.y + canvasH * 0.025;
+
+  const footerHeight = Math.max(40, canvasH * 0.035);
+  const footerBox = {
+    x: pad,
+    y: canvasH - pad - footerHeight,
+    w: canvasW - pad * 2,
+    h: footerHeight
+  };
+
+  const activeFeatures = plan.features.mode === "none"
+    ? []
+    : features.filter(v => v.trim()).slice(0, plan.features.maxItems);
+
+  if (activeFeatures.length) {
+    const { requiredHeight } = getFeatureMetrics(activeFeatures.length);
+    const featureBoxPlanned = { x: contentX, y: currentY, w: contentWidth, h: requiredHeight };
+    const safeGap = canvasH * 0.018;
+    const paddedFooter = { x: footerBox.x, y: footerBox.y - safeGap, w: footerBox.w, h: footerBox.h + safeGap };
+
+    if (boxesIntersect(featureBoxPlanned, paddedFooter)) {
+      report.warnings.push("Takeaway points collide with the footer safe zone");
+    }
+
+    const featureResult = drawFeatures(ctx, activeFeatures, contentX, currentY, contentWidth, palette, design.typePair.body, align, plan.features.maxItems);
+    if (featureResult.overflow) report.warnings.push("One or more takeaway points exceed their safe width/height");
+    if (boxesIntersect(featureResult.box, paddedFooter)) {
+      if (!report.warnings.includes("Takeaway points collide with the footer safe zone")) report.warnings.push("Takeaway points collide with the footer safe zone");
+    }
+  }
+
+  ctx.save();
+  ctx.textBaseline = "bottom";
+  ctx.textAlign = align;
+  const footerX = align === "center" ? canvasW / 2 : align === "right" ? canvasW - pad : pad;
+  const footerFit = fitText(ctx, {
+    text: domain,
+    box: footerBox,
+    fontFamily: design.typePair.body,
+    weight: 700,
+    maxSize: canvasW * 0.021,
+    minSize: canvasW * 0.012,
+    maxLines: 1
+  });
+  ctx.font = `700 ${footerFit.size}px ${design.typePair.body}`;
+  ctx.fillStyle = palette.highlightGrad[0];
+  ctx.fillText(domain, footerX, canvasH - pad);
+  ctx.restore();
+  if (footerFit.overflow) report.warnings.push("Website/domain exceeds its safe width");
+report.ok = report.warnings.length === 0;
+  report.severity = report.ok ? "PASS" : "BLOCKED";
+  report.archetype = plan.archetypeLabel;
+  report.geometry = {
+    logoBox,
+    topCopyBox,
+    headlineBox: headlineResult.box,
+    bodyBox: { ...bodyBox, h: Math.max(0, subResult.y - bodyBox.y) },
+    footerBox
+  };
+  return report;
+}
+
+function renderPreview() {
+  const spec = collectCreativeSpec();
+  let proposed = resolveScene(spec, { regenerate: false });
+
+  const scale = Math.min(PREVIEW_MAX_DIMENSION / Math.max(canvasW, canvasH), 1);
+  previewCanvas.width = Math.round(canvasW * scale);
+  previewCanvas.height = Math.round(canvasH * scale);
+  const ctx = previewCanvas.getContext("2d", { alpha: false });
+
+  ctx.save();
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  let report = renderLogicalCanvas(ctx, proposed);
+  ctx.restore();
+  let score = computeCompositionScore(proposed, report);
+  let candidateList = null;
+
+  if (!autoRelayoutGuard && spec.preferences.layout === "auto" && !spec.locks.layout && (!report.ok || score.total < 80)) {
+    autoRelayoutGuard = true;
+    try {
+      const ranked = chooseBestComposition(spec, proposed);
+      candidateList = ranked.candidates;
+      if (ranked.best && (ranked.best.report.ok || ranked.best.score.total > score.total + 0.5)) {
+        proposed = ranked.best.scene;
+        report = ranked.best.report;
+        score = ranked.best.score;
+
+        ctx.save();
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        renderLogicalCanvas(ctx, proposed);
+        ctx.restore();
+      }
+    } finally {
+      autoRelayoutGuard = false;
+    }
+  }
+
+  currentDesign = proposed;
+  lastRenderReport = report;
+  updateEngineHealth(report);
+  updateScoreUI(score, candidateList);
+  updateAssetResolverStatus(currentDesign);
+
+  const archetypeLabel = currentDesign.compositionPlan?.archetypeLabel || "Balanced Editorial";
+  $("activeCompositionName").textContent = `${archetypeLabel} • ${currentDesign.palette.name} • ${capitalize(currentDesign.layout)} • ${capitalize(currentDesign.dimensions.profile)}`;
+  $("activeStyleMeta").textContent = `${cleanFontName(currentDesign.typePair.headline)} • Seed ${currentDesign.seed}`;
+  if (document.activeElement !== $("seedInput")) $("seedInput").value = currentDesign.seed;
+}
+
+function updateEngineHealth(report) {
+  const el = $("engineHealth");
+  if (!el) return;
+  if (report.ok) {
+    el.className = "text-[10px] px-2.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold";
+    el.textContent = `Layout health: PASS • ${report.archetype || "Creative"}`;
+  } else {
+    el.className = "text-[10px] px-2.5 py-2 rounded-lg engine-warning font-semibold";
+    el.textContent = "Layout health: BLOCKED • " + report.warnings.join(" • ");
+  }
+}
+
+function schedulePreviewRender() {
+  if (renderFrame) cancelAnimationFrame(renderFrame);
+  renderFrame = requestAnimationFrame(() => {
+    renderFrame = null;
+    renderPreview();
+  });
+}
+
+async function exportMaster() {
+  setStatus("EXPORTING...", "sky");
+  await document.fonts.ready;
+
+  const exportSpec = collectCreativeSpec();
+  let exportScene = resolveScene(exportSpec, { regenerate: false });
+  if (exportSpec.preferences.layout === "auto" && !exportSpec.locks.layout) {
+    exportScene = chooseBestComposition(exportSpec, exportScene).best.scene;
+  }
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = exportSpec.dimensions.width;
+  exportCanvas.height = exportSpec.dimensions.height;
+  const exportCtx = exportCanvas.getContext("2d", { alpha: false });
+  const exportReport = renderLogicalCanvas(exportCtx, exportScene);
+  const exportScore = computeCompositionScore(exportScene, exportReport);
+  updateScoreUI(exportScore);
+
+  if (!exportReport.ok || exportScore.total < 70) {
+    lastRenderReport = exportReport;
+    updateEngineHealth(exportReport);
+    const reasons = exportReport.warnings.length ? exportReport.warnings.join(" | ") : `Composition score ${Math.round(exportScore.total)}/100 is below the export threshold.`;
+    alert("Export blocked: " + reasons + " Shorten the copy, change archetype, choose another layout, or use Find Best Composition.");
+    setStatus("FIX LAYOUT", "amber");
+    return;
+  }
+
+  try {
+    exportCanvas.toBlob(blob => {
+      if (!blob) {
+        alert("PNG export failed.");
+        setStatus("ERROR", "amber");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `yuj-${exportScene.compositionPlan.archetypeKey}-${canvasW}x${canvasH}-${exportScene.seed}.png`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus("EXPORTED", "green");
+    }, "image/png", 1);
+  } catch (err) {
+    console.error("Export security error:", err);
+    alert("Canvas tainted: External image CORS blocked export. Try procedural or local file upload.");
+    setStatus("TAINTED", "amber");
+  }
+}
+
+function generateScene() {
+  currentDesign = generateNewCompositionState();
+  schedulePreviewRender();
+}
+
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function cleanFontName(value) {
+  return value.replaceAll("'", "").split(",")[0];
+}
+
+function syncFocusControls() {
+  const manual = $("imageFocusSelect").value === "manual";
+  $("manualFocusControls").classList.toggle("opacity-50", !manual);
+  ["focusX", "focusY"].forEach(id => {
+    $(id).disabled = !manual;
+  });
+}
+
+/* =========================================================
+   UI LISTENERS & EVENT ATTACHMENTS
+========================================================= */
+
+$("shuffleTextBtn").addEventListener("click", shuffleTextPositions);
+$("optimizeCompositionBtn").addEventListener("click", () => optimizeCurrentComposition({ announce: true }));
+$("randomizeBtn").addEventListener("click", generateScene);
+
+$("reRenderBtn").addEventListener("click", () => {
+  schedulePreviewRender();
+  setStatus("REFRESHED", "green");
+  setTimeout(() => setStatus("READY", "green"), 1200);
+});
+
+document.querySelectorAll(".lib-cat-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".lib-cat-btn").forEach(b => {
+      b.className = "lib-cat-btn px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 hover:bg-slate-300";
+    });
+    btn.className = "lib-cat-btn px-2.5 py-1 rounded-md bg-amber-500 text-white";
+    activeLibraryCategory = btn.dataset.cat;
+    renderImageLibrary(activeLibraryCategory);
+  });
+});
+
+$("clearLibrarySelectBtn").addEventListener("click", deselectAllImages);
+
+$("quickCopyBtn").addEventListener("click", () => {
+  $("headlineInput").value = "[Conscious] Foundations For Life";
+  $("subheadingInput").value = "Cultivating emotional regulation, ethical discernment, and adaptive resilience beyond test scores.";
+  $("eyebrowInput").value = "EXPERIENTIAL LIFE EDUCATION";
+  $("feat1").value = "Self Mastery: Inner awareness, emotional regulation & focus";
+  $("feat2").value = "Ethical Integrity: Value-anchored choices in action";
+  $("feat3").value = "Interpersonal Harmony: Radical empathy and collaboration";
+  schedulePreviewRender();
+});
+
+$("imageUpload").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      activeLoadedImage = img;
+      activeImageAnalysis = analyzeImageZones(img);
+      activeLibraryImageId = null;
+      activeImageSourceMeta = { source: "upload", id: `upload-${file.name}`, label: file.name };
+      $("uploadLabel").textContent = file.name;
+      $("activeImageSourceLabel").textContent = `Local File: ${file.name}`;
+      $("clearImageBtn").classList.remove("hidden");
+      $("clearLibrarySelectBtn").classList.remove("hidden");
+      renderImageLibrary(activeLibraryCategory);
+      setStatus("PHOTO READY", "green");
+      schedulePreviewRender();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$("logoUpload").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      activeLogoImage = img;
+      activeLogoSourceMeta = { source: "upload", id: `logo-${file.name}`, label: file.name };
+      $("logoUploadLabel").textContent = file.name;
+      $("clearLogoBtn").classList.remove("hidden");
+      schedulePreviewRender();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$("clearLogoBtn").addEventListener("click", () => {
+  activeLogoImage = null;
+  activeLogoSourceMeta = { source: "generated", id: "generated-seal", label: "Generated seal" };
+  $("logoUpload").value = "";
+  $("logoUploadLabel").textContent = "Optional logo...";
+  $("clearLogoBtn").classList.add("hidden");
+  schedulePreviewRender();
+});
+
+$("resolveHybridAssetBtn").addEventListener("click", () => resolveHybridAssetIntelligence({ announce: true }));
+$("clearHybridCacheBtn").addEventListener("click", () => {
+  HYBRID_ASSET_CACHE.clear();
+  lastHybridResolution = null;
+  updateHybridResolverUI({ status: "Hybrid resolver: SESSION CACHE CLEARED", candidates: [], path: [] });
+  setStatus("CACHE CLEARED", "green");
+});
+$("hybridReuseThreshold").addEventListener("input", e => {
+  $("hybridReuseThresholdVal").textContent = e.target.value;
+});
+["hybridModeSelect", "hybridAllowCurrent", "hybridAllowLibrary", "hybridAllowProcedural", "hybridAllowGenerative", "hybridEnableCache"].forEach(id => {
+  $(id).addEventListener("change", () => {
+    updateHybridResolverUI({ status: "Hybrid resolver: SETTINGS UPDATED", candidates: [], path: [] });
+  });
+});
+
+$("genProviderSelect").addEventListener("change", () => {
+  syncGenerativeProviderControls();
+  buildAndPreviewGenerativePrompt();
+});
+$("buildGenPromptBtn").addEventListener("click", buildAndPreviewGenerativePrompt);
+$("generateAssetBtn").addEventListener("click", runGenerativeAssetPipeline);
+$("validateCurrentAssetBtn").addEventListener("click", validateCurrentBackgroundAgainstPrompt);
+$("genValidationThreshold").addEventListener("input", e => {
+  $("genValidationThresholdVal").textContent = e.target.value;
+});
+["genConceptInput", "genMoodSelect", "genStyleSelect", "genMaxAttempts"].forEach(id => {
+  $(id).addEventListener(id === "genConceptInput" ? "input" : "change", () => {
+    if (!generationInFlight) buildAndPreviewGenerativePrompt();
+  });
+});
+
+["focusX", "focusY", "imageZoom"].forEach(id => {
+  $(id).addEventListener("input", e => {
+    const label = id === "focusX" ? "focusXVal" : id === "focusY" ? "focusYVal" : "imageZoomVal";
+    $(label).textContent = e.target.value + "%";
+    schedulePreviewRender();
+  });
+});
+
+$("clearImageBtn").addEventListener("click", deselectAllImages);
+
+$("genChromaPaletteBtn").addEventListener("click", () => {
+  const model = $("harmonyTypeSelect").value;
+  const rng = seededRandom((currentDesign?.seed ?? Date.now()) >>> 0);
+  const newPalette = generateChromaPalette(model === "preset" ? "analogous" : model, rng);
+  if (!currentDesign) currentDesign = resolveScene(collectCreativeSpec(), { regenerate: true });
+  currentDesign.palette = newPalette;
+  updatePaletteSwatches(newPalette, "Chroma.js");
+  schedulePreviewRender();
+});
+
+$("extractImgPaletteBtn").addEventListener("click", extractPaletteFromCurrentImage);
+$("downloadBtn").addEventListener("click", exportMaster);
+
+$("fadeStrength").addEventListener("input", e => {
+  $("fadeStrengthVal").textContent = e.target.value + "%";
+  schedulePreviewRender();
+});
+
+$("lightBleed").addEventListener("input", e => {
+  $("lightBleedVal").textContent = e.target.value + "%";
+  schedulePreviewRender();
+});
+
+$("harmonyTypeSelect").addEventListener("change", () => {
+  const model = $("harmonyTypeSelect").value;
+  if (model === "preset") {
+    currentDesign.palette = LUMINOUS_PALETTES.golden_hour;
+    updatePaletteSwatches(currentDesign.palette, "Preset");
+  } else {
+    const rng = seededRandom((currentDesign?.seed ?? Date.now()) >>> 0);
+    currentDesign.palette = generateChromaPalette(model, rng);
+    updatePaletteSwatches(currentDesign.palette, "Chroma.js");
+  }
+  schedulePreviewRender();
+});
+
+$("layoutSelect").addEventListener("change", () => {
+  const value = $("layoutSelect").value;
+  if (!currentDesign) currentDesign = resolveScene(collectCreativeSpec(), { regenerate: true });
+  const spec = collectCreativeSpec();
+  const rng = seededRandom(currentDesign.seed);
+  const plan = createCompositionPlan(spec);
+  currentDesign.layout = value === "auto" ? deriveAutoLayout(spec, plan, rng) : value;
+  currentDesign.focalPoint = deriveFocus(spec, currentDesign.layout);
+  schedulePreviewRender();
+  requestAnimationFrame(() => buildAndPreviewGenerativePrompt());
+});
+
+$("imageFocusSelect").addEventListener("change", () => {
+  syncFocusControls();
+  schedulePreviewRender();
+});
+
+$("archetypeSelect").addEventListener("change", () => {
+  updateArchetypeDescription();
+  schedulePreviewRender();
+  requestAnimationFrame(() => buildAndPreviewGenerativePrompt());
+});
+
+$("applySeedBtn").addEventListener("click", () => {
+  const raw = Number($("seedInput").value);
+  if (!Number.isFinite(raw) || raw < 0) {
+    alert("Enter a valid seed between 0 and 4294967295.");
+    return;
+  }
+  const seed = raw >>> 0;
+  const spec = collectCreativeSpec();
+  const lockState = { ...spec.locks };
+  spec.locks = { palette: false, fonts: false, layout: false, seed: false };
+  currentDesign = resolveScene(spec, { regenerate: true, forcedSeed: seed });
+  updatePaletteSwatches(currentDesign.palette, "Seeded");
+  $("lockSeed").checked = lockState.seed;
+  setStatus("SEED APPLIED", "green");
+  schedulePreviewRender();
+});
+
+["lockPalette", "lockFonts", "lockLayout", "lockSeed"].forEach(id => {
+  $(id).addEventListener("change", schedulePreviewRender);
+});
+
+["headlineInput", "subheadingInput", "eyebrowInput", "brandName", "domainInput", "taglineInput", "feat1", "feat2", "feat3"].forEach(id => {
+  $(id).addEventListener("input", schedulePreviewRender);
+});
+
+document.querySelectorAll(".preset-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".preset-btn").forEach(item => item.classList.remove("active"));
+    button.classList.add("active");
+    canvasW = Number(button.dataset.w);
+    canvasH = Number(button.dataset.h);
+    $("dimensionDisplay").textContent = `${canvasW} × ${canvasH} px`;
+    schedulePreviewRender();
+    requestAnimationFrame(() => buildAndPreviewGenerativePrompt());
+  });
+});
+
+window.addEventListener("DOMContentLoaded", async () => {
+  activeLibraryCategory = "all";
+  renderImageLibrary(activeLibraryCategory);
+  updateArchetypeDescription();
+  syncFocusControls();
+  syncGenerativeProviderControls();
+  updateHybridResolverUI({ status: "Hybrid resolver: READY", candidates: [], path: [] });
+  currentDesign = generateNewCompositionState();
+  await document.fonts.ready;
+  schedulePreviewRender();
+  buildAndPreviewGenerativePrompt();
+  setStatus("PROCEDURAL", "amber");
+});
+</script>
+
+</body>
+</html>
